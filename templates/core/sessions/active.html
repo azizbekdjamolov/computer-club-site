@@ -1,18 +1,18 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load core_extras %}
-{% block title %}Active Sessions{% endblock %}
-{% block page_label %}Active Sessions{% endblock %}
+{% block title %}Faol sessiyalar{% endblock %}
+{% block page_label %}Faol sessiyalar{% endblock %}
 
 {% block content %}
 <div class="page-head">
     <div>
-        <h1>Active Sessions</h1>
+        <h1>Faol sessiyalar</h1>
         <p class="muted">Hozir faol ijara sessiyalari · real vaqtda o'tgan vaqt va narx</p>
     </div>
     <div class="head-actions">
         <a href="{% url 'dashboard' %}" class="btn btn-ghost"><i data-lucide="layout-dashboard"></i> Dashboard</a>
-        <a href="{% url 'session_create' %}" class="btn btn-primary"><i data-lucide="plus"></i> New Session</a>
+        <a href="{% url 'session_create' %}" class="btn btn-primary"><i data-lucide="plus"></i> Yangi sessiya</a>
     </div>
 </div>
 
@@ -32,7 +32,7 @@
                 <strong>{{ s.computer.name }}</strong>
                 {% if s.is_paused %}<span class="pause-badge"><i data-lucide="pause"></i> Pauza</span>{% endif %}
             </div>
-            <span class="status-pill {% if s.is_paused %}reserved{% else %}occupied{% endif %}"><span class="pill-dot"></span>{% if s.is_paused %}TIQIB QOLDI{% else %}BAND{% endif %}</span>
+            <span class="status-pill {% if s.is_paused %}reserved{% else %}occupied{% endif %}"><span class="pill-dot"></span>{% if s.is_paused %}PAUZA{% else %}BAND{% endif %}</span>
         </div>
         <div class="active-card-body">
             <div class="ainfo"><i data-lucide="user"></i><span>{{ s.customer.full_name }}</span></div>
@@ -53,20 +53,20 @@
             <form method="post" action="{% url 'payment_add' s.id %}" class="inline-add">
                 {% csrf_token %}
                 <input type="number" name="amount" class="form-control sm" placeholder="Summa" required min="1">
-                <button class="btn btn-success sm" title="Add Payment"><i data-lucide="plus"></i> Payment</button>
+                <button class="btn btn-success sm" title="To'lov qo'shish"><i data-lucide="plus"></i> To'lov</button>
             </form>
         </div>
         <div class="active-card-actions">
-            <button class="btn btn-ghost sm" onclick="openModal('sessTransfer{{ s.id }}')"><i data-lucide="move-right"></i> Transfer</button>
-            <button class="btn btn-ghost sm" onclick="openModal('sessRate{{ s.id }}')"><i data-lucide="pencil-ruler"></i> Rate</button>
+            <button class="btn btn-ghost sm" onclick="openModal('sessTransfer{{ s.id }}')"><i data-lucide="move-right"></i> Ko'chirish</button>
+            <button class="btn btn-ghost sm" onclick="openModal('sessRate{{ s.id }}')"><i data-lucide="pencil-ruler"></i> Narx</button>
             <form method="post" action="{% url 'session_pause' s.id %}">
                 {% csrf_token %}
-                <button class="btn btn-ghost sm"><i data-lucide="{% if s.is_paused %}play{% else %}pause{% endif %}"></i> {% if s.is_paused %}Resume{% else %}Pause{% endif %}</button>
+                <button class="btn btn-ghost sm"><i data-lucide="{% if s.is_paused %}play{% else %}pause{% endif %}"></i> {% if s.is_paused %}Davom{% else %}Pauza{% endif %}</button>
             </form>
-            <a href="{% url 'session_detail' s.id %}" class="btn btn-ghost sm"><i data-lucide="eye"></i> Details</a>
+            <a href="{% url 'session_detail' s.id %}" class="btn btn-ghost sm"><i data-lucide="eye"></i> Batafsil</a>
             <form method="post" action="{% url 'session_stop' s.id %}" data-confirm="Sessiyani tugatasizmi?">
                 {% csrf_token %}
-                <button class="btn btn-danger sm"><i data-lucide="square"></i> Stop</button>
+                <button class="btn btn-danger sm"><i data-lucide="square"></i> Tugatish</button>
             </form>
         </div>
     </div>
@@ -75,7 +75,7 @@
         <span class="empty-ic"><i data-lucide="play-circle"></i></span>
         <strong>Hozircha faol sessiyalar yo'q</strong>
         <span>Dashboarddan yangi sessiya boshlang</span>
-        <a href="{% url 'dashboard' %}" class="btn btn-primary sm"><i data-lucide="play"></i> Start Session</a>
+        <a href="{% url 'dashboard' %}" class="btn btn-primary sm"><i data-lucide="play"></i> Sessiya boshlash</a>
     </div>
     {% endfor %}
 </div>
@@ -85,7 +85,7 @@
 <div class="modal-backdrop" id="sessTransfer{{ s.id }}">
     <div class="modal modal--sm">
         <div class="modal-head">
-            <div><h3><i data-lucide="move-right"></i> Transfer computer</h3>
+            <div><h3><i data-lucide="move-right"></i> Kompyuterni ko'chirish</h3>
                 <div class="m-head-sub"><span class="muted">{{ s.computer.name }} → qaysi kompyuterga?</span></div>
             </div>
             <button type="button" class="modal-close" onclick="closeModal()"><i data-lucide="x"></i></button>
@@ -97,8 +97,8 @@
                     {% for r in rooms_all %}
                     <optgroup label="{{ r.name }}">
                         {% for pc in r.computers.all %}
-                        {% if pc.status != 'occupied' and pc.id != s.computer_id %}
-                        <option value="{{ pc.id }}">{{ pc.name }}{% if pc.status == 'reserved' %} · rezerv{% endif %}</option>
+                        {% if pc.id != s.computer_id %}
+                        <option value="{{ pc.id }}">{{ pc.name }}{% if pc.status == 'reserved' %} · rezerv{% elif pc.status == 'occupied' %} · band{% endif %}</option>
                         {% endif %}
                         {% endfor %}
                     </optgroup>
@@ -114,7 +114,7 @@
 <div class="modal-backdrop" id="sessRate{{ s.id }}">
     <div class="modal modal--sm">
         <div class="modal-head">
-            <div><h3><i data-lucide="pencil-ruler"></i> Change rate</h3>
+            <div><h3><i data-lucide="pencil-ruler"></i> Narxni o'zgartirish</h3>
                 <div class="m-head-sub"><span class="muted">{{ s.computer.name }} · {{ s.customer.full_name }}</span></div>
             </div>
             <button type="button" class="modal-close" onclick="closeModal()"><i data-lucide="x"></i></button>

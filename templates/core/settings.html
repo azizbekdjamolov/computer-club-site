@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
-{% block title %}Settings{% endblock %}
-{% block page_label %}Settings{% endblock %}
+{% block title %}Sozlamalar{% endblock %}
+{% block page_label %}Sozlamalar{% endblock %}
 
 {% block content %}
 <div class="page-head">
     <div>
-        <h1>Settings</h1>
+        <h1>Sozlamalar</h1>
         <p class="muted">Tizim sozlamalari</p>
     </div>
 </div>
@@ -14,22 +14,30 @@
     <form method="post">
         {% csrf_token %}
         {{ form.non_field_errors }}
-        <div class="card-head"><h3><span class="t-icon"><i data-lucide="building-2"></i></span> Club</h3></div>
+        <div class="card-head"><h3><span class="t-icon"><i data-lucide="building-2"></i></span> Klub</h3></div>
         <div class="form-row">
             <div class="form-group"><label>Klub nomi</label>{{ form.club_name }}</div>
             <div class="form-group"><label>Valyuta</label>{{ form.currency }}</div>
         </div>
 
-        <div class="divider"></div>
-        <div class="card-head"><h3><span class="t-icon"><i data-lucide="coins"></i></span> Pricing</h3></div>
+<div class="divider"></div>
+        <div class="card-head"><h3><span class="t-icon"><i data-lucide="coins"></i></span> Narxlar</h3></div>
         <div class="form-row">
             <div class="form-group"><label>Standart soatlik narx</label>{{ form.default_hourly_price }}</div>
-            <div class="form-group"><label>Kechikish to'lovi</label>{{ form.late_fee }}</div>
+            <div class="form-group"><label>Kechikish uchun qo'shimcha to'lov</label>{{ form.late_fee }}</div>
         </div>
         <div class="form-group"><label>Standart hisoblash usuli</label>{{ form.default_calculation_method }}</div>
 
         <div class="divider"></div>
-        <div class="card-head"><h3><span class="t-icon"><i data-lucide="bell-ring"></i></span> Notifications & Refresh</h3></div>
+        <div class="card-head"><h3><span class="t-icon"><i data-lucide="trending-up"></i></span> Progressiv narx (avtomatik)</h3></div>
+        <p class="muted">Mijoz ko'p vaqt o'tkazsa, narx oshadi. Masalan: 2 soatdan keyin soatlik narx 12000 bo'ladi. Avtomatik hisoblanadi.</p>
+        <div class="form-row">
+            <div class="form-group"><label>Necha daqiqadan keyin narx oshadi (0 = oshmaydi)</label>{{ form.price_increase_after_minutes }}</div>
+            <div class="form-group"><label>Oshirilgan soatlik narx</label>{{ form.increased_hourly_price }}</div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="card-head"><h3><span class="t-icon"><i data-lucide="bell-ring"></i></span> Bildirishnomalar va yangilash</h3></div>
         <div class="form-row">
             <div class="form-group"><label>Avto yangilash (sekund)</label>{{ form.auto_refresh_interval }}</div>
             <div class="form-group"><label>Tugashga ogohlantirish (daq)</label>{{ form.notification_minutes_before_end }}</div>

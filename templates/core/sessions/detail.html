@@ -19,11 +19,18 @@
         </form>
         <form method="post" action="{% url 'session_stop' session.id %}" data-confirm="Sessiyani tugatasizmi?">
             {% csrf_token %}
-            <button class="btn btn-danger"><i data-lucide="square"></i> Stop Session</button>
+            <button class="btn btn-danger"><i data-lucide="square"></i> Tugatish</button>
         </form>
         {% endif %}
     </div>
 </div>
+
+{% if session.status == 'active' and early_refund > 0 %}
+<div class="alert alert-success">
+    <i data-lucide="arrow-up-right"></i>
+    Hozir to'xtatsangiz qaytim: <strong>{{ early_refund|money }} {{ site_settings.currency }}</strong>
+</div>
+{% endif %}
 
 <div class="stat-grid small-cards">
     <div class="stat-card accent">
@@ -65,7 +72,7 @@
 
 <div class="detail-grid">
     <div class="card">
-        <div class="card-head"><h3><span class="t-icon"><i data-lucide="info"></i></span> Details</h3></div>
+        <div class="card-head"><h3><span class="t-icon"><i data-lucide="info"></i></span> Ma'lumotlar</h3></div>
         <div class="table-wrap">
             <table class="table kv">
                 <tbody>
@@ -87,7 +94,7 @@
     </div>
 
     <div class="card">
-        <div class="card-head"><h3><span class="t-icon"><i data-lucide="credit-card"></i></span> Payments</h3></div>
+        <div class="card-head"><h3><span class="t-icon"><i data-lucide="credit-card"></i></span> To'lovlar</h3></div>
         {% if session.status == 'active' %}
         <form method="post" action="{% url 'payment_add' session.id %}" class="form-card" style="max-width:none;margin-bottom:18px;">
             {% csrf_token %}

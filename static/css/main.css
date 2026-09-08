@@ -1,7 +1,7 @@
 /* ============================================================================
    CYBER CLUB · Management System — Design System
    Premium, modern, futuristic-but-restrained dark UI.
-   Electric-violet primary on deep slate surfaces.
+   Premium-gold primary on deep slate surfaces.
    ============================================================================ */
 
 :root {
@@ -33,12 +33,12 @@
   --text-3: #65748C;
   --text-inv: #0B0F14;
 
-  /* accents */
-  --primary: #8B5CF6;       /* electric violet */
-  --primary-2: #7C3AED;
-  --primary-3: #A78BFA;
-  --primary-wash: rgba(139, 92, 246, .16);
-  --primary-glow: rgba(124, 58, 237, .38);
+  /* accents · premium gold */
+  --primary: #D8B25C;
+  --primary-2: #C79A2E;
+  --primary-3: #EED48F;
+  --primary-wash: rgba(216, 178, 92, .16);
+  --primary-glow: rgba(199, 154, 46, .38);
 
   --cyan: #22D3EE;
   --cyan-wash: rgba(34, 211, 238, .16);
@@ -54,8 +54,8 @@
   --red-wash: rgba(243, 106, 106, .16);
   --blue: #60A5FA;
   --blue-wash: rgba(96, 165, 250, .16);
-  --purple: #A78BFA;
-  --purple-wash: rgba(167, 139, 250, .16);
+  --purple: #E8C15A;
+  --purple-wash: rgba(232, 193, 90, .16);
   --gray: #64748B;
   --gray-wash: rgba(100, 116, 139, .16);
 
@@ -80,11 +80,11 @@
   --text-3: #8593A7;
   --text-inv: #FFFFFF;
 
-  --primary: #6D28D9;
-  --primary-2: #5B21B6;
-  --primary-3: #7C3AED;
-  --primary-wash: rgba(109, 40, 217, .1);
-  --primary-glow: rgba(109, 40, 217, .28);
+  --primary: #A87D1F;
+  --primary-2: #8F6813;
+  --primary-3: #C79A2E;
+  --primary-wash: rgba(168, 125, 31, .1);
+  --primary-glow: rgba(143, 104, 19, .28);
 
   --cyan: #0891B2;
   --cyan-wash: rgba(8, 145, 178, .1);
@@ -100,8 +100,8 @@
   --red-wash: rgba(220, 38, 38, .1);
   --blue: #2563EB;
   --blue-wash: rgba(37, 99, 235, .1);
-  --purple: #7C3AED;
-  --purple-wash: rgba(124, 58, 237, .1);
+  --purple: #B8860B;
+  --purple-wash: rgba(184, 134, 11, .1);
   --gray: #64748B;
   --gray-wash: rgba(100, 116, 139, .12);
 
@@ -208,7 +208,7 @@ button { font-family: inherit; }
 .nav-item.active {
   background: linear-gradient(90deg, var(--primary-wash), transparent 85%);
   color: var(--text);
-  border-color: rgba(139, 92, 246, .28);
+  border-color: rgba(216, 178, 92, .28);
 }
 .nav-item.active svg { color: var(--primary-3); }
 .nav-item.active::before {
@@ -517,13 +517,13 @@ form .btn-icon { padding: 0; }
   background:
     radial-gradient(900px 300px at 15% -40%, var(--primary-wash), transparent 60%),
     linear-gradient(135deg, var(--surface), var(--surface-2));
-  border-color: rgba(139, 92, 246, .35);
+  border-color: rgba(216, 178, 92, .36);
   padding: 26px;
   flex-direction: column; gap: 18px;
 }
 .stat-card--hero::after { width: 220px; height: 220px; right: -60px; top: -60px; }
 .stat-card--hero .stat-top { display: flex; align-items: flex-start; justify-content: space-between; width: 100%; gap: 16px; flex-wrap: wrap; }
-.stat-card--hero .stat-icon { width: 54px; height: 54px; border-radius: 15px; box-shadow: 0 8px 22px var(--primary-glow); border: 1px solid rgba(139,92,246,.4); }
+.stat-card--hero .stat-icon { width: 54px; height: 54px; border-radius: 15px; box-shadow: 0 8px 22px var(--primary-glow); border: 1px solid rgba(216,178,92,.46); }
 .stat-card--hero .stat-icon svg { width: 24px; height: 24px; }
 .stat-card--hero .stat-label { font-size: 12.5px; letter-spacing: .6px; }
 .stat-card--hero .stat-value { font-size: 38px; }

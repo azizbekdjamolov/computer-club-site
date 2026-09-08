@@ -63,7 +63,12 @@ def _get_computers_for_room(room_id):
 
 
 def _release_computer(computer):
-    """Kompyuterni bo'shatish (faol rezerv borligini tekshirib)."""
+    """Kompyuterni bo'shatish. Boshqa faol sessiya bo'lsa band qoladi."""
+    has_active = Session.objects.filter(
+        computer=computer, status='active'
+    ).exists()
+    if has_active:
+        return
     has_res = Reservation.objects.filter(
         computer=computer, status__in=['pending', 'active']
     ).exists()
@@ -114,7 +119,7 @@ def dashboard(request):
     debtors = []
     active_map = {}
     for s in active_sessions:
-        active_map[s.computer_id] = s
+        active_map.setdefault(s.computer_id, []).append(s)
         if s.remaining_amount > 0:
             debtors.append({'session': s, 'remaining': s.remaining_amount})
 
@@ -355,6 +360,7 @@ def session_detail(request, pk):
     if session.status == 'active':
         context['payment_form'] = PaymentForm()
         context['detail_form'] = SessionDetailForm(instance=session)
+        context['early_refund'] = session.early_refund
     return render(request, 'core/sessions/detail.html', context)
 
 
@@ -370,9 +376,6 @@ def session_create(request):
         room = Room.objects.filter(pk=room_pk).first()
         if not customer or not computer or not room:
             messages.error(request, 'Mijoz, xona va kompyuterni to\'ldiring')
-            return redirect('session_create')
-        if computer.status == 'occupied':
-            messages.error(request, 'Bu kompyuter band')
             return redirect('session_create')
         if computer.room_id != room.pk:
             messages.error(request, 'Kompyuter tanlangan xonaga tegishli emas')
@@ -463,9 +466,6 @@ def quick_start(request):
 
             computer = data['computer']
             room = data['room']
-            if computer.status == 'occupied':
-                messages.error(request, 'Bu kompyuter band')
-                return redirect('active_sessions')
 
             start = data.get('start_time') or timezone.now()
             if timezone.is_naive(start):
@@ -525,7 +525,11 @@ def session_stop(request, pk):
     session.actual_end_time = timezone.now()
     session.status = 'completed'
     session.save()
-    messages.success(request, f'Sessiya tugatildi: {session.computer.name}')
+    msg = f'Sessiya tugatildi: {session.computer.name}'
+    if session.early_refund > 0:
+        currency = Setting.get_settings().currency
+        msg += f' · Qaytim: {session.early_refund:,.0f} {currency}'
+    messages.success(request, msg)
     return redirect('active_sessions')
 
 
@@ -570,9 +574,6 @@ def session_transfer(request, pk):
         return redirect('active_sessions')
     if new_pc.pk == session.computer_id:
         messages.info(request, 'Kompyuter o\'zgarmadi')
-        return redirect('active_sessions')
-    if new_pc.status == 'occupied':
-        messages.error(request, 'Tanlangan kompyuter band')
         return redirect('active_sessions')
 
     old_pc = session.computer
@@ -632,10 +633,14 @@ def payment_list(request):
     q = request.GET.get('q')
     if q:
         payments = payments.filter(session__customer__full_name__icontains=q)
+    total = _sum(payments, 'amount')
+    today_start = timezone.make_aware(datetime.combine(timezone.localdate(), time.min))
+    today_total = _sum(payments.filter(created_at__gte=today_start), 'amount')
     paginator = Paginator(payments.order_by('-created_at'), 30)
     page = paginator.get_page(request.GET.get('page'))
     return render(request, 'core/payments/list.html', {
         'payments': page, 'active_page': 'payments', 'q': q,
+        'total': total, 'today_total': today_total,
     })
 
 

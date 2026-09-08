@@ -1,53 +1,43 @@
 {% extends 'base.html' %}
 {% load core_extras %}
-{% block title %}Expenses{% endblock %}
-{% block page_label %}Expenses{% endblock %}
+{% block title %}Xarajatlar{% endblock %}
+{% block page_label %}Xarajatlar{% endblock %}
 
 {% block content %}
 <div class="page-head">
     <div>
-        <h1>Expenses</h1>
-        <p class="muted">Xarajatlar jami: <strong style="color:var(--orange);">{{ total|money }} {{ site_settings.currency }}</strong></p>
+        <h1>Xarajatlar</h1>
+        <p class="muted">Keladigan xarajatlar ro'yxati</p>
     </div>
     <div class="head-actions">
-        <a href="{% url 'expense_create' %}" class="btn btn-primary"><i data-lucide="plus"></i> New Expense</a>
+        <a href="{% url 'expense_create' %}" class="btn btn-primary"><i data-lucide="plus"></i> Xarajat qo'shish</a>
+    </div>
+</div>
+
+<div class="stat-grid three">
+    <div class="stat-card">
+        <span class="t-icon"><i data-lucide="receipt"></i></span>
+        <span class="stat-value">{{ total|money }}</span>
+        <span class="stat-label">Jami xarajatlar ({{ site_settings.currency }})</span>
     </div>
 </div>
 
 <div class="card">
-    <form class="filter-bar" method="get">
-        <select name="category" class="form-control" onchange="this.form.submit()">
-            <option value="">Barcha kategoriyalar</option>
-            <option value="electricity" {% if current_category == 'electricity' %}selected{% endif %}>Elektr</option>
-            <option value="internet" {% if current_category == 'internet' %}selected{% endif %}>Internet</option>
-            <option value="repair" {% if current_category == 'repair' %}selected{% endif %}>Ta'mirlash</option>
-            <option value="salary" {% if current_category == 'salary' %}selected{% endif %}>Ish haqi</option>
-            <option value="rent" {% if current_category == 'rent' %}selected{% endif %}>Ijara</option>
-            <option value="other" {% if current_category == 'other' %}selected{% endif %}>Boshqa</option>
-        </select>
-    </form>
     <div class="table-wrap">
         <table class="table">
             <thead>
-                <tr><th>Sarlavha</th><th>Summa</th><th>Kategoriya</th><th>Sana</th><th>Amallar</th></tr>
+                <tr><th>Sana</th><th>Sarlavha</th><th>Kategoriya</th><th>Summa</th></tr>
             </thead>
             <tbody>
                 {% for e in expenses %}
                 <tr>
-                    <td><strong>{{ e.title }}</strong></td>
-                    <td>{{ e.amount|money }} {{ site_settings.currency }}</td>
-                    <td><span class="status-pill"><span class="pill-dot"></span>{{ e.get_category_display }}</span></td>
                     <td>{{ e.created_at|date:"d.m.Y H:i" }}</td>
-                    <td class="actions">
-                        <a href="{% url 'expense_update' e.id %}" class="btn-icon" title="Edit"><i data-lucide="pencil"></i></a>
-                        <form method="post" action="{% url 'expense_delete' e.id %}" data-confirm="Xarajatni o'chirasizmi?">
-                            {% csrf_token %}
-                            <button class="btn-icon danger" title="Delete"><i data-lucide="trash-2"></i></button>
-                        </form>
-                    </td>
+                    <td><strong>{{ e.title }}</strong></td>
+                    <td><span class="status-pill"><span class="pill-dot"></span>{{ e.get_category_display }}</span></td>
+                    <td><strong>{{ e.amount|money }} {{ site_settings.currency }}</strong></td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="5"><div class="empty-state">
+                <tr><td colspan="4"><div class="empty-state">
                     <span class="empty-ic"><i data-lucide="receipt"></i></span>
                     <strong>Xarajatlar yo'q</strong>
                     <a href="{% url 'expense_create' %}" class="btn btn-primary sm"><i data-lucide="plus"></i> Xarajat qo'shish</a>

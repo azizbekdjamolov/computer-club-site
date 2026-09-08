@@ -1,10 +1,12 @@
 from datetime import timedelta
 
+from decimal import Decimal
+
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 
-from core.calculations import calculate_price, format_duration
+from core.calculations import calculate_price, calculate_used_price, format_duration
 
 
 class Room(models.Model):
@@ -214,10 +216,16 @@ class Session(models.Model):
             return int((self.actual_end_time - self.start_time).total_seconds() // 60)
         return 0
 
+    def _tier_params(self):
+        s = Setting.get_settings()
+        return s.price_increase_after_minutes, s.increased_hourly_price
+
     def current_total_price(self):
         minutes = self.current_duration_minutes()
+        after, inc = self._tier_params()
         return calculate_price(
-            minutes, self.hourly_price, self.calculation_method, self.duration_minutes
+            minutes, self.hourly_price, self.calculation_method, self.duration_minutes,
+            increase_after_minutes=after, increased_hourly_price=inc
         )
 
     def update_from_payments(self):
@@ -228,9 +236,22 @@ class Session(models.Model):
     def calculate_price(self, minutes=None):
         if minutes is None:
             minutes = self.current_duration_minutes()
+        after, inc = self._tier_params()
         return calculate_price(
-            minutes, self.hourly_price, self.calculation_method, self.duration_minutes
+            minutes, self.hourly_price, self.calculation_method, self.duration_minutes,
+            increase_after_minutes=after, increased_hourly_price=inc
         )
+
+    @property
+    def early_refund(self):
+        """Erta ketishda qaytariladigan pul (ishlatilgan daqiqalar narxisiz)."""
+        if self.paid_amount <= 0:
+            return Decimal(0)
+        after, inc = self._tier_params()
+        used = calculate_used_price(
+            self.current_duration_minutes(), self.hourly_price, after, inc
+        )
+        return max(self.paid_amount - used, Decimal(0))
 
     def save(self, *args, **kwargs):
         if not self.hourly_price and self.room:
@@ -397,6 +418,13 @@ class Setting(models.Model):
     )
     notification_minutes_before_end = models.IntegerField(
         default=10, verbose_name='Tugashga necha daqiqa qolganda ogohlantirish'
+    )
+    price_increase_after_minutes = models.IntegerField(
+        default=0, verbose_name='Necha daqiqadan keyin narx oshadi (0 = oshmaydi)'
+    )
+    increased_hourly_price = models.DecimalField(
+        max_digits=12, decimal_places=2, default=0,
+        verbose_name='Oshirilgan soatlik narx'
     )
     updated_at = models.DateTimeField(auto_now=True)
 

@@ -150,8 +150,6 @@ class QuickSessionForm(forms.Form):
         computer = cleaned.get('computer')
         if room and computer and computer.room_id != room.pk:
             self.add_error('computer', 'Tanlangan kompyuter bu xonaga tegishli emas')
-        if computer and computer.status == 'occupied':
-            self.add_error('computer', 'Bu kompyuter allaqachon band')
         return cleaned
 
 
@@ -211,7 +209,8 @@ class SettingForm(forms.ModelForm):
         model = Setting
         fields = ['club_name', 'currency', 'default_hourly_price', 'late_fee',
                   'dark_mode', 'auto_refresh_interval', 'default_calculation_method',
-                  'notification_minutes_before_end']
+                  'notification_minutes_before_end', 'price_increase_after_minutes',
+                  'increased_hourly_price']
         widgets = {
             'club_name': forms.TextInput(attrs={'class': 'form-control'}),
             'currency': forms.TextInput(attrs={'class': 'form-control'}),
@@ -221,4 +220,6 @@ class SettingForm(forms.ModelForm):
             'auto_refresh_interval': forms.NumberInput(attrs={'class': 'form-control'}),
             'default_calculation_method': forms.Select(attrs={'class': 'form-control'}),
             'notification_minutes_before_end': forms.NumberInput(attrs={'class': 'form-control'}),
+            'price_increase_after_minutes': forms.NumberInput(attrs={'class': 'form-control'}),
+            'increased_hourly_price': forms.NumberInput(attrs={'class': 'form-control'}),
         }

@@ -25,52 +25,52 @@
             </div>
 
             <nav class="sidebar-nav">
-                <div class="nav-section">Main</div>
+                <div class="nav-section">Asosiy</div>
                 <a href="{% url 'dashboard' %}" class="nav-item {% if active_page == 'dashboard' %}active{% endif %}">
                     <i data-lucide="layout-dashboard"></i><span>Dashboard</span>
                 </a>
                 <a href="{% url 'room_list' %}" class="nav-item {% if active_page == 'rooms' %}active{% endif %}">
-                    <i data-lucide="network"></i><span>Computer Rooms</span>
+                    <i data-lucide="network"></i><span>Xonalar</span>
                 </a>
                 <a href="{% url 'computer_list' %}" class="nav-item {% if active_page == 'computers' %}active{% endif %}">
-                    <i data-lucide="monitor"></i><span>Computers</span>
+                    <i data-lucide="monitor"></i><span>Kompyuterlar</span>
                 </a>
                 <a href="{% url 'customer_list' %}" class="nav-item {% if active_page == 'customers' %}active{% endif %}">
-                    <i data-lucide="users"></i><span>Customers</span>
+                    <i data-lucide="users"></i><span>Mijozlar</span>
                 </a>
                 <a href="{% url 'active_sessions' %}" class="nav-item {% if active_page == 'active-sessions' %}active{% endif %}">
-                    <i data-lucide="play-circle"></i><span>Active Sessions</span>
+                    <i data-lucide="play-circle"></i><span>Faol sessiyalar</span>
                     {% if active_sessions_count %}<span class="nav-badge">{{ active_sessions_count }}</span>{% endif %}
                 </a>
                 <a href="{% url 'reservation_list' %}" class="nav-item {% if active_page == 'reservations' %}active{% endif %}">
-                    <i data-lucide="calendar-check-2"></i><span>Reservations</span>
+                    <i data-lucide="calendar-check-2"></i><span>Rezervatsiyalar</span>
                 </a>
 
-                <div class="nav-section">Finance</div>
+                <div class="nav-section">Moliyaviy</div>
                 <a href="{% url 'payment_list' %}" class="nav-item {% if active_page == 'payments' %}active{% endif %}">
-                    <i data-lucide="credit-card"></i><span>Payments</span>
+                    <i data-lucide="credit-card"></i><span>To'lovlar</span>
                 </a>
                 <a href="{% url 'expense_list' %}" class="nav-item {% if active_page == 'expenses' %}active{% endif %}">
-                    <i data-lucide="receipt"></i><span>Expenses</span>
+                    <i data-lucide="receipt"></i><span>Xarajatlar</span>
                 </a>
                 <a href="{% url 'reports' %}" class="nav-item {% if active_page == 'reports' %}active{% endif %}">
-                    <i data-lucide="chart-line"></i><span>Reports</span>
+                    <i data-lucide="chart-line"></i><span>Hisobotlar</span>
                 </a>
 
-                <div class="nav-section">System</div>
+                <div class="nav-section">Tizim</div>
                 <a href="{% url 'settings' %}" class="nav-item {% if active_page == 'settings' %}active{% endif %}">
-                    <i data-lucide="settings"></i><span>Settings</span>
+                    <i data-lucide="settings"></i><span>Sozlamalar</span>
+                </a>
+                <a href="{% url 'admin:index' %}" class="nav-item" target="_blank" rel="noopener">
+                    <i data-lucide="shield-check"></i><span>Admin panel</span>
                 </a>
             </nav>
 
             <div class="sidebar-footer">
-                <a href="{% url 'admin:core_session_changelist' %}" class="nav-item">
-                    <i data-lucide="shield-check"></i><span>Admin Panel</span>
-                </a>
                 <form method="post" action="{% url 'logout' %}">
                     {% csrf_token %}
                     <button type="submit" class="nav-item logout">
-                        <i data-lucide="log-out"></i><span>Logout</span>
+                        <i data-lucide="log-out"></i><span>Chiqish</span>
                     </button>
                 </form>
             </div>
@@ -87,7 +87,7 @@
                 </div>
                 <form class="global-search" action="{% url 'search' %}" method="get">
                     <i data-lucide="search"></i>
-                    <input type="text" name="q" placeholder="Search customer, phone, computer, room, session..." value="{{ q|default:'' }}">
+                    <input type="text" name="q" placeholder="Mijoz, telefon, kompyuter, xona, sessiya bo'yicha qidirish..." value="{{ q|default:'' }}">
                 </form>
                 <div class="topbar-right">
                     <div class="notifications" id="notificationsWrap">

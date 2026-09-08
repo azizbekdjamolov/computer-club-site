@@ -71,12 +71,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 .then(function (data) {
                     qsComputer.innerHTML = '<option value="">-- Kompyuter --</option>';
                     data.computers.forEach(function (pc) {
-                        if (pc.status !== 'occupied') {
-                            const o = document.createElement('option');
-                            o.value = pc.id;
-                            o.textContent = pc.name + (pc.status === 'reserved' ? ' (rezerv)' : pc.status === 'maintenance' ? ' (nosoz)' : ' (bo\'sh)');
-                            qsComputer.appendChild(o);
-                        }
+                        const label = pc.status === 'reserved' ? ' (rezerv)' : pc.status === 'maintenance' ? ' (nosoz)' : pc.status === 'occupied' ? ' (band)' : '';
+                        const o = document.createElement('option');
+                        o.value = pc.id;
+                        o.textContent = pc.name + label;
+                        qsComputer.appendChild(o);
                     });
                 })
                 .catch(function () { qsComputer.innerHTML = '<option value="">Xatolik</option>'; });
@@ -154,18 +153,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 '<input type="hidden" name="csrfmiddlewaretoken" value="' + window.CSRF + '">' +
                 '<input type="hidden" name="room" value="' + roomId + '">' +
                 '<input type="hidden" name="computer" value="' + id + '">' +
-                '<div class="form-group"><label>Customer name</label>' +
+                '<div class="form-group"><label>Mijoz ismi</label>' +
                 '<input type="text" name="customer_name" class="form-control" required placeholder="Ali Valiyev"></div>' +
-                '<div class="form-group"><label>Phone</label>' +
+                '<div class="form-group"><label>Telefon</label>' +
                 '<input type="text" name="phone" class="form-control" placeholder="998901234567"></div>' +
-                '<div class="form-row"><div class="form-group"><label>Start</label>' + timeInput + '</div>' +
-                '<div class="form-group"><label>Duration (min)</label>' +
+                '<div class="form-row"><div class="form-group"><label>Boshlash</label>' + timeInput + '</div>' +
+                '<div class="form-group"><label>Muddat (daq)</label>' +
                 '<input type="number" name="duration_minutes" class="form-control" min="1"></div></div>' +
-                '<div class="form-row"><div class="form-group"><label>End time</label>' +
+                '<div class="form-row"><div class="form-group"><label>Tugash vaqti</label>' +
                 '<input type="datetime-local" name="planned_end_time" class="form-control"></div>' +
-                '<div class="form-group"><label>Payment</label>' +
+                '<div class="form-group"><label>To\'lov</label>' +
                 '<input type="number" name="paid_amount" class="form-control" min="0"></div></div>' +
-                '<button type="submit" class="btn btn-primary btn-block btn-lg"><i data-lucide="play"></i> Start Session</button>' +
+                '<button type="submit" class="btn btn-primary btn-block btn-lg"><i data-lucide="play"></i> Sessiyani boshlash</button>' +
                 '</form>';
             openModal('pcModal');
         });

@@ -4,9 +4,9 @@
 
 @media (prefers-color-scheme: dark), (prefers-color-scheme: light) {
   :root {
-    --primary: #8B5CF6;
+    --primary: #D8B25C;
     --secondary: #1A2230;
-    --accent: #A78BFA;
+    --accent: #EED48F;
     --primary-fg: #FFFFFF;
 
     --body-fg: #E6EAF2;
@@ -20,12 +20,12 @@
     --header-link-color: #C4B5FD;
 
     --breadcrumbs-fg: #9AA8BC;
-    --breadcrumbs-link-fg: #A78BFA;
+    --breadcrumbs-link-fg: #EED48F;
     --breadcrumbs-bg: #151C26;
 
-    --link-fg: #A78BFA;
+    --link-fg: #EED48F;
     --link-hover-color: #C4B5FD;
-    --application-logo-color: #8B5CF6;
+    --application-logo-color: #D8B25C;
     --link-selected-fg: #C4B5FD;
 
     --hairline-color: #1F2937;
@@ -42,22 +42,22 @@
 
     --darkened-bg: #10161F;
     --selected-bg: #151C26;
-    --selected-row: rgba(139, 92, 246, .18);
+    --selected-row: rgba(216, 178, 92, .2);
 
-    --button-fg: #FFFFFF;
-    --button-bg: #8B5CF6;
-    --button-hover-bg: #7C3AED;
-    --default-button-fg: #FFFFFF;
-    --default-button-bg: #7C3AED;
-    --default-button-hover-bg: #6D28D9;
+    --button-fg: #1A1403;
+    --button-bg: #D8B25C;
+    --button-hover-bg: #E0BF72;
+    --default-button-fg: #1A1403;
+    --default-button-bg: #C79A2E;
+    --default-button-hover-bg: #E0BF72;
     --close-button-bg: #232C3D;
     --close-button-hover-bg: #2B3547;
     --delete-button-bg: #DC2626;
     --delete-button-hover-bg: #B91C1C;
 
-    --object-tools-fg: #FFFFFF;
-    --object-tools-bg: #7C3AED;
-    --object-tools-hover-bg: #6D28D9;
+    --object-tools-fg: #1A1403;
+    --object-tools-bg: #C79A2E;
+    --object-tools-hover-bg: #E0BF72;
   }
 }
 
@@ -176,7 +176,7 @@ input[type=datetime-local], textarea, select, .vTextField, .vLargeTextField,
 
 input:focus, textarea:focus, select:focus, .vTextField:focus, .vLargeTextField:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(139, 92, 246, .25);
+  box-shadow: 0 0 0 3px rgba(216, 178, 92, .3);
   outline: none;
 }
 
