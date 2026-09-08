@@ -1,0 +1,127 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" {% if site_settings.dark_mode %}data-theme="dark"{% else %}data-theme="light"{% endif %}>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ site_settings.club_name }}{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <div class="app">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                <span class="brand-icon"><i class="fas fa-gamepad"></i></span>
+                <div class="brand-text">
+                    <strong>{{ site_settings.club_name }}</strong>
+                    <small>Management System</small>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="{% url 'dashboard' %}" class="nav-item {% if active_page == 'dashboard' %}active{% endif %}">
+                    <i class="fas fa-th-large"></i><span>Dashboard</span>
+                </a>
+                <a href="{% url 'room_list' %}" class="nav-item {% if active_page == 'rooms' %}active{% endif %}">
+                    <i class="fas fa-door-open"></i><span>Computer Rooms</span>
+                </a>
+                <a href="{% url 'computer_list' %}" class="nav-item {% if active_page == 'computers' %}active{% endif %}">
+                    <i class="fas fa-desktop"></i><span>Computers</span>
+                </a>
+                <a href="{% url 'customer_list' %}" class="nav-item {% if active_page == 'customers' %}active{% endif %}">
+                    <i class="fas fa-users"></i><span>Customers</span>
+                </a>
+                <a href="{% url 'active_sessions' %}" class="nav-item {% if active_page == 'active-sessions' %}active{% endif %}">
+                    <i class="fas fa-play-circle"></i><span>Active Sessions</span>
+                    {% if active_sessions_count %}<span class="badge">{{ active_sessions_count }}</span>{% endif %}
+                </a>
+                <a href="{% url 'reservation_list' %}" class="nav-item {% if active_page == 'reservations' %}active{% endif %}">
+                    <i class="fas fa-calendar-check"></i><span>Reservations</span>
+                </a>
+                <a href="{% url 'payment_list' %}" class="nav-item {% if active_page == 'payments' %}active{% endif %}">
+                    <i class="fas fa-credit-card"></i><span>Payments</span>
+                </a>
+                <a href="{% url 'expense_list' %}" class="nav-item {% if active_page == 'expenses' %}active{% endif %}">
+                    <i class="fas fa-receipt"></i><span>Expenses</span>
+                </a>
+                <a href="{% url 'reports' %}" class="nav-item {% if active_page == 'reports' %}active{% endif %}">
+                    <i class="fas fa-chart-line"></i><span>Reports</span>
+                </a>
+                <a href="{% url 'settings' %}" class="nav-item {% if active_page == 'settings' %}active{% endif %}">
+                    <i class="fas fa-cog"></i><span>Settings</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="{% url 'admin:index' %}" class="nav-item">
+                    <i class="fas fa-shield-alt"></i><span>Admin Panel</span>
+                </a>
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="nav-item logout-btn">
+                        <i class="fas fa-sign-out-alt"></i><span>Logout</span>
+                    </button>
+                </form>
+            </div>
+        </aside>
+
+        <div class="main">
+            <header class="topbar">
+                <button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+                <form class="global-search" action="{% url 'search' %}" method="get">
+                    <i class="fas fa-search"></i>
+                    <input type="text" name="q" placeholder="Search customer, phone, computer, room..." value="{{ q|default:'' }}">
+                </form>
+                <div class="topbar-right">
+                    <div class="notifications" id="notificationsWrap">
+                        <button class="icon-btn" id="notifToggle">
+                            <i class="fas fa-bell"></i>
+                            {% if notifications %}<span class="notif-dot"></span>{% endif %}
+                        </button>
+                        <div class="notif-dropdown" id="notifDropdown">
+                            <div class="notif-header">Notifications</div>
+                            {% if notifications %}
+                                {% for n in notifications %}
+                                <a class="notif-item {{ n.type }}" href="{% if n.link %}{{ n.link }}{% else %}#{% endif %}">
+                                    <i class="fas fa-{{ n.icon }}"></i>
+                                    <span>{{ n.message }}</span>
+                                </a>
+                                {% endfor %}
+                            {% else %}
+                                <div class="notif-empty">No notifications</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="user-chip">
+                        <div class="user-avatar"><i class="fas fa-user"></i></div>
+                        <div class="user-meta">
+                            <strong>{{ user.username }}</strong>
+                            <small>Admin</small>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <main class="content">
+                {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        <i class="fas fa-info-circle"></i> {{ message }}
+                        <button class="alert-close" onclick="this.parentElement.remove()">&times;</button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

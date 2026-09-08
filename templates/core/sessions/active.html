@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load core_extras %}
+{% block title %}Active Sessions{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div><h1>Active Sessions</h1><p class="muted">Hozir faol ijara sessiyalari</p></div>
+    <a href="{% url 'session_create' %}" class="btn btn-primary"><i class="fas fa-plus"></i> Yangi sessiya</a>
+</div>
+
+<div class="active-grid">
+    {% for s in sessions %}
+    <div class="active-card" id="active-{{ s.id }}" data-id="{{ s.id }}" data-start="{{ s.start_time|date:'c' }}" data-price="{{ s.hourly_price }}" data-method="{{ s.calculation_method }}" data-duration="{{ s.duration_minutes }}" data-paid="{{ s.paid_amount }}">
+        <div class="active-card-head">
+            <strong>{{ s.computer.name }}</strong>
+            <span class="status-pill occupied">BAND</span>
+        </div>
+        <div class="active-card-body">
+            <div class="ainfo"><i class="fas fa-user"></i><span>{{ s.customer.full_name }}</span></div>
+            <div class="ainfo"><i class="fas fa-door-open"></i><span>{{ s.room.name }}</span></div>
+            <div class="ainfo"><i class="fas fa-clock"></i><span>Boshlangan: <b>{{ s.start_time|date:"H:i" }}</b></span></div>
+            <div class="ainfo timer-row">
+                <i class="fas fa-hourglass-half"></i>
+                <span>O'tgan vaqt: <b class="js-elapsed" data-id="{{ s.id }}">--:--:--</b></span>
+            </div>
+            <div class="ainfo"><i class="fas fa-coins"></i><span>Narx: <b class="js-price" data-id="{{ s.id }}">-</b> {{ site_settings.currency }}</span></div>
+            <div class="ainfo"><i class="fas fa-credit-card"></i><span>To'langan: <b>{{ s.paid_amount|money }}</b></span></div>
+            <div class="ainfo"><i class="fas fa-exclamation-triangle"></i><span>Qolgan: <b class="js-remaining" data-id="{{ s.id }}">-</b></span></div>
+            {% if s.planned_end_time %}
+            <div class="ainfo"><i class="fas fa-flag"></i><span>Reja tugash: <b>{{ s.planned_end_time|date:"H:i" }}</b></span></div>
+            {% endif %}
+        </div>
+        <div class="active-card-foot">
+            <form method="post" action="{% url 'payment_add' s.id %}" class="inline-add">
+                {% csrf_token %}
+                <input type="number" name="amount" class="form-control sm" placeholder="Summa" required>
+                <button class="btn btn-success sm" title="Add Payment"><i class="fas fa-plus"></i> Add Payment</button>
+            </form>
+        </div>
+        <div class="active-card-actions">
+            <a href="{% url 'session_detail' s.id %}" class="btn btn-ghost sm"><i class="fas fa-eye"></i> View Details</a>
+            <form method="post" action="{% url 'session_stop' s.id %}" data-confirm="Sessiyani tugatasizmi?">
+                {% csrf_token %}
+                <button class="btn btn-danger sm"><i class="fas fa-stop"></i> Stop Session</button>
+            </form>
+        </div>
+    </div>
+    {% empty %}
+    <div class="empty-state full">Hozircha faol sessiyalar yo'q.<br><a href="{% url 'dashboard' %}">Dashboarddan yangi sessiya boshlang</a></div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const CSRF = '{{ csrf_token }}';
+const CURRENCY = '{{ site_settings.currency }}';
+const AUTO_REFRESH = {{ site_settings.auto_refresh_interval }};
+</script>
+<script src="{% static 'js/active_sessions.js' %}"></script>
+{% endblock %}

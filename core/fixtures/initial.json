@@ -1,0 +1,15 @@
+[
+  {"model": "core.room", "pk": 1, "fields": {"name": "1-xona", "number": "1", "description": "Asosiy zal", "hourly_price": "10000.00", "is_active": true, "created_at": "2026-01-01T10:00:00Z"}},
+  {"model": "core.room", "pk": 2, "fields": {"name": "VIP xona", "number": "2", "description": "VIP o'yin zali", "hourly_price": "15000.00", "is_active": true, "created_at": "2026-01-01T10:00:00Z"}},
+  {"model": "core.computer", "pk": 1, "fields": {"room": 1, "name": "PC-01", "status": "available", "description": "", "is_active": true, "created_at": "2026-01-01T10:00:00Z"}},
+  {"model": "core.computer", "pk": 2, "fields": {"room": 1, "name": "PC-02", "status": "available", "description": "", "is_active": true, "created_at": "2026-01-01T10:00:00Z"}},
+  {"model": "core.computer", "pk": 3, "fields": {"room": 1, "name": "PC-03", "status": "available", "description": "", "is_active": true, "created_at": "2026-01-01T10:00:00Z"}},
+  {"model": "core.computer", "pk": 4, "fields": {"room": 1, "name": "PC-04", "status": "available", "description": "", "is_active": true, "created_at": "2026-01-01T10:00:00Z"}},
+  {"model": "core.computer", "pk": 5, "fields": {"room": 1, "name": "PC-05", "status": "available", "description": "", "is_active": true, "created_at": "2026-01-01T10:00:00Z"}},
+  {"model": "core.computer", "pk": 6, "fields": {"room": 2, "name": "VIP-01", "status": "available", "description": "RTX 4090", "is_active": true, "created_at": "2026-01-01T10:00:00Z"}},
+  {"model": "core.computer", "pk": 7, "fields": {"room": 2, "name": "VIP-02", "status": "available", "description": "RTX 4090", "is_active": true, "created_at": "2026-01-01T10:00:00Z"}},
+  {"model": "core.computer", "pk": 8, "fields": {"room": 2, "name": "VIP-03", "status": "available", "description": "RTX 4080", "is_active": true, "created_at": "2026-01-01T10:00:00Z"}},
+  {"model": "core.customer", "pk": 1, "fields": {"full_name": "Ali Valiyev", "phone": "998901234567", "note": "", "created_at": "2026-01-01T10:00:00Z"}},
+  {"model": "core.customer", "pk": 2, "fields": {"full_name": "Hasan Karimov", "phone": "998909876543", "note": "Doimiy mijoz", "created_at": "2026-01-01T10:00:00Z"}},
+  {"model": "core.customer", "pk": 3, "fields": {"full_name": "Sardor Toshmatov", "phone": "998933221100", "note": "", "created_at": "2026-01-01T10:00:00Z"}}
+]

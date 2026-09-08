@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load core_extras %}
+{% block title %}Computers{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div><h1>Computers</h1><p class="muted">Barcha kompyuterlar</p></div>
+    <a href="{% url 'computer_create' %}" class="btn btn-primary"><i class="fas fa-plus"></i> Yangi kompyuter</a>
+</div>
+
+<div class="card">
+    <form class="filter-bar" method="get">
+        <select name="room" class="form-control" onchange="this.form.submit()">
+            <option value="">Barcha xonalar</option>
+            {% for r in rooms %}
+            <option value="{{ r.id }}" {% if request.GET.room == r.id|stringformat:"s" %}selected{% endif %}>{{ r.name }}</option>
+            {% endfor %}
+        </select>
+        <select name="status" class="form-control" onchange="this.form.submit()">
+            <option value="">Barcha holatlar</option>
+            <option value="available" {% if request.GET.status == 'available' %}selected{% endif %}>Bo'sh</option>
+            <option value="occupied" {% if request.GET.status == 'occupied' %}selected{% endif %}>Band</option>
+            <option value="reserved" {% if request.GET.status == 'reserved' %}selected{% endif %}>Rezerv</option>
+            <option value="maintenance" {% if request.GET.status == 'maintenance' %}selected{% endif %}>Nosoz</option>
+        </select>
+    </form>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>PC</th><th>Xona</th><th>Holat</th><th>Tavsif</th><th>Faol</th><th>Amallar</th></tr>
+            </thead>
+            <tbody>
+                {% for pc in computers %}
+                <tr>
+                    <td><strong>{{ pc.name }}</strong></td>
+                    <td>{{ pc.room.name }}</td>
+                    <td><span class="status-pill {{ pc.status }}">{{ pc.status|status_label }}</span></td>
+                    <td>{{ pc.description|truncatechars:40 }}</td>
+                    <td>{% if pc.is_active %}<i class="fas fa-check text-green"></i>{% else %}<i class="fas fa-times text-red"></i>{% endif %}</td>
+                    <td class="actions">
+                        <a href="{% url 'computer_update' pc.id %}" class="btn-icon"><i class="fas fa-edit"></i></a>
+                        <form method="post" action="{% url 'computer_delete' pc.id %}" data-confirm="Kompyuterni o'chirasizmi?">
+                            {% csrf_token %}
+                            <button class="btn-icon danger"><i class="fas fa-trash"></i></button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" class="empty-state">Kompyuter yo'q</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div><h1>{{ title }}</h1></div>
+    <a href="{% url 'room_list' %}" class="btn btn-ghost"><i class="fas fa-arrow-left"></i> Orqaga</a>
+</div>
+<div class="card form-card">
+    <form method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <div class="form-row">
+            <div class="form-group"><label>Nomi *</label>{{ form.name }}</div>
+            <div class="form-group"><label>Raqam</label>{{ form.number }}</div>
+        </div>
+        <div class="form-group"><label>Soatlik narx *</label>{{ form.hourly_price }}</div>
+        <div class="form-group"><label>Tavsif</label>{{ form.description }}</div>
+        <div class="form-group check-group">{{ form.is_active }}<label for="{{ form.is_active.id_for_label }}">Faol</label></div>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Saqlash</button>
+    </form>
+</div>
+{% endblock %}

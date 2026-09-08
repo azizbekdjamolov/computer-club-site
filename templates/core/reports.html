@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% load core_extras %}
+{% block title %}Reports{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div><h1>Reports</h1><p class="muted">{{ range_label }}</p></div>
+</div>
+
+<div class="card">
+    <form class="filter-bar" method="get" id="reportFilter">
+        <select name="filter" class="form-control" onchange="toggleCustom(this);">
+            <option value="today" {% if filter == 'today' %}selected{% endif %}>Bugun</option>
+            <option value="yesterday" {% if filter == 'yesterday' %}selected{% endif %}>Kecha</option>
+            <option value="week" {% if filter == 'week' %}selected{% endif %}>Bu hafta</option>
+            <option value="month" {% if filter == 'month' %}selected{% endif %}>Bu oy</option>
+            <option value="custom" {% if filter == 'custom' %}selected{% endif %}>Maxsus sana</option>
+        </select>
+        <input type="date" name="start" class="form-control custom-date {% if filter != 'custom' %}hidden{% endif %}" value="{{ custom_start }}">
+        <input type="date" name="end" class="form-control custom-date {% if filter != 'custom' %}hidden{% endif %}" value="{{ custom_end }}">
+        <button class="btn btn-primary"><i class="fas fa-filter"></i> Filter</button>
+    </form>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card accent">
+        <div class="stat-icon"><i class="fas fa-users"></i></div>
+        <div class="stat-info"><span class="stat-label">Jami mijozlar</span><strong class="stat-value">{{ total_customers }}</strong></div>
+    </div>
+    <div class="stat-card purple">
+        <div class="stat-icon"><i class="fas fa-laptop"></i></div>
+        <div class="stat-info"><span class="stat-label">Jami sessiyalar</span><strong class="stat-value">{{ total_sessions }}</strong></div>
+    </div>
+    <div class="stat-card cyan">
+        <div class="stat-icon"><i class="fas fa-clock"></i></div>
+        <div class="stat-info"><span class="stat-label">Jami vaqt</span><strong class="stat-value">{{ total_minutes }} min</strong></div>
+    </div>
+    <div class="stat-card green">
+        <div class="stat-icon"><i class="fas fa-wallet"></i></div>
+        <div class="stat-info"><span class="stat-label">Daromad</span><strong class="stat-value">{{ total_revenue|money }}</strong></div>
+    </div>
+    <div class="stat-card blue">
+        <div class="stat-icon"><i class="fas fa-credit-card"></i></div>
+        <div class="stat-info"><span class="stat-label">To'langan</span><strong class="stat-value">{{ total_paid|money }}</strong></div>
+    </div>
+    <div class="stat-card red">
+        <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
+        <div class="stat-info"><span class="stat-label">Qarz</span><strong class="stat-value">{{ total_debt|money }}</strong></div>
+    </div>
+    <div class="stat-card orange">
+        <div class="stat-icon"><i class="fas fa-receipt"></i></div>
+        <div class="stat-info"><span class="stat-label">Xarajatlar</span><strong class="stat-value">{{ total_expenses|money }}</strong></div>
+    </div>
+    <div class="stat-card success">
+        <div class="stat-icon"><i class="fas fa-chart-pie"></i></div>
+        <div class="stat-info"><span class="stat-label">Sof foyda</span><strong class="stat-value">{{ net_profit|money }}</strong></div>
+    </div>
+</div>
+
+<div class="report-leaders">
+    <div class="card">
+        <div class="card-head"><h3>Eng ko'p ishlatilgan xona</h3></div>
+        {% if top_room %}
+        <div class="leader"><i class="fas fa-door-open"></i><span>{{ top_room.room__name }}</span><strong>{{ top_room.total|money }} {{ site_settings.currency }}</strong></div>
+        {% else %}<div class="empty-state small">Ma'lumot yo'q</div>{% endif %}
+    </div>
+    <div class="card">
+        <div class="card-head"><h3>Eng ko'p ishlatilgan kompyuter</h3></div>
+        {% if top_computer %}
+        <div class="leader"><i class="fas fa-desktop"></i><span>{{ top_computer.computer__name }}</span><strong>{{ top_computer.count }} marta</strong></div>
+        {% else %}<div class="empty-state small">Ma'lumot yo'q</div>{% endif %}
+    </div>
+</div>
+
+<div class="charts-grid">
+    <div class="card chart-card">
+        <div class="card-head"><h3>Kunlik daromad (14 kun)</h3></div>
+        <canvas id="dailyChart" height="120"></canvas>
+    </div>
+    <div class="card chart-card">
+        <div class="card-head"><h3>Xonalar bo'yicha daromad</h3></div>
+        <canvas id="roomChart" height="120"></canvas>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-head"><h3>Kompyuterlar bo'yicha foydalanish</h3></div>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>Kompyuter</th><th>Xona</th><th>Ishlatilish</th><th>Vaqt</th></tr></thead>
+            <tbody>
+                {% for c in computer_usage %}
+                <tr>
+                    <td><strong>{{ c.computer__name }}</strong></td>
+                    <td>{{ c.room__name }}</td>
+                    <td>{{ c.count }} marta</td>
+                    <td>{{ c.minutes }} min</td>
+                </tr>
+                {% empty %}<tr><td colspan="4" class="empty-state">Ma'lumot yo'q</td></tr>{% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const DAILY_LABELS = {{ daily_labels|safe }};
+const DAILY_DATA = {{ daily_revenue|safe }};
+const ROOM_DATA = {{ room_revenue|safe }};
+document.addEventListener('DOMContentLoaded', function(){
+    if (window.Chart){
+        new Chart(document.getElementById('dailyChart'), {
+            type: 'line',
+            data: {
+                labels: DAILY_LABELS,
+                datasets: [{
+                    label: 'Daromad',
+                    data: DAILY_DATA,
+                    borderColor: '#7c3aed',
+                    backgroundColor: 'rgba(124,58,237,.15)',
+                    fill: true, tension: .4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { labels: { color: getComputedStyle(document.body).getPropertyValue('--text') } } },
+                scales: {
+                    x: { ticks: { color: getComputedStyle(document.body).getPropertyValue('--text') } },
+                    y: { ticks: { color: getComputedStyle(document.body).getPropertyValue('--text') } }
+                }
+            }
+        });
+        const roomLabels = ROOM_DATA.map(r => r.room__name);
+        const roomValues = ROOM_DATA.map(r => parseFloat(r.rev));
+        new Chart(document.getElementById('roomChart'), {
+            type: 'doughnut',
+            data: {
+                labels: roomLabels,
+                datasets: [{ data: roomValues, backgroundColor: ['#7c3aed','#06b6d4','#10b981','#f59e0b','#ef4444','#8b5cf6'] }]
+            },
+            options: { responsive: true, plugins: { legend: { labels: { color: getComputedStyle(document.body).getPropertyValue('--text') } } } }
+        });
+    }
+});
+function toggleCustom(sel){
+    const vals = document.querySelectorAll('.custom-date');
+    vals.forEach(v => v.classList.toggle('hidden', sel.value !== 'custom'));
+}
+(function(){ const s = document.querySelector('#reportFilter select[name="filter"]'); if(s) toggleCustom(s); })();
+</script>
+{% endblock %}

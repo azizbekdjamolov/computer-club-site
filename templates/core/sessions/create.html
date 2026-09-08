@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block title %}Yangi sessiya{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <div><h1>Yangi sessiya</h1><p class="muted">Mijoz, xona va kompyuter tanlang</p></div>
+    <a href="{% url 'active_sessions' %}" class="btn btn-ghost"><i class="fas fa-arrow-left"></i> Orqaga</a>
+</div>
+<div class="card form-card">
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-row">
+            <div class="form-group"><label>Mijoz *</label>
+                <select name="customer" class="form-control" required>
+                    <option value="">-- Tanlang --</option>
+                    {% for c in customers %}
+                    <option value="{{ c.id }}">{{ c.full_name }} ({{ c.phone|default:"tel yo'q" }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group"><label>Xona *</label>
+                <select name="room" id="sessRoom" class="form-control" required>
+                    <option value="">-- Tanlang --</option>
+                    {% for r in rooms %}
+                    <option value="{{ r.id }}">{{ r.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group"><label>Kompyuter *</label>
+                <select name="computer" id="sessComputer" class="form-control" required>
+                    <option value="">-- Avval xonani tanlang --</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group"><label>Boshlanish vaqti</label>
+                <input type="datetime-local" name="start_time" class="form-control" id="sessStart">
+            </div>
+            <div class="form-group"><label>Davomiylik (daqiqa)</label>
+                <input type="number" name="duration_minutes" class="form-control" min="1">
+            </div>
+            <div class="form-group"><label>Tugash vaqti</label>
+                <input type="datetime-local" name="planned_end_time" class="form-control">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group"><label>Hisoblash usuli</label>
+                <select name="calculation_method" class="form-control">
+                    <option value="hourly">Soatlik (real vaqt)</option>
+                    <option value="per_minute">Har daqiqada</option>
+                    <option value="fixed">Belgilangan muddat</option>
+                </select>
+            </div>
+            <div class="form-group"><label>To'lov</label>
+                <input type="number" name="paid_amount" class="form-control" min="0">
+            </div>
+        </div>
+        <div class="form-group"><label>Izoh</label>
+            <textarea name="note" class="form-control" rows="2"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-play"></i> Sessiyani boshlash</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    const room = document.getElementById('sessRoom');
+    const comp = document.getElementById('sessComputer');
+    room.addEventListener('change', function(){
+        const rid = this.value;
+        comp.innerHTML = '<option value="">Yuklanmoqda...</option>';
+        if(!rid) return;
+        fetch('/rooms/'+rid+'/computers/')
+            .then(r => r.json())
+            .then(data => {
+                comp.innerHTML = '<option value="">-- Kompyuter --</option>';
+                data.computers.forEach(pc => {
+                    if (pc.status !== 'occupied'){
+                        const o = document.createElement('option');
+                        o.value = pc.id;
+                        o.textContent = pc.name + (pc.status === 'reserved' ? ' (rezerv)' : pc.status === 'maintenance' ? ' (nosoz)' : '');
+                        comp.appendChild(o);
+                    }
+                });
+            });
+    });
+    const startInput = document.getElementById('sessStart');
+    const now = new Date();
+    startInput.value = now.toISOString().slice(0,16);
+});
+</script>
+{% endblock %}
