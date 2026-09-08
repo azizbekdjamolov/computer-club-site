@@ -879,7 +879,10 @@ def reports(request):
         .annotate(rev=Coalesce(Sum('total_price'), Decimal('0')))
         .order_by('-rev')
     )
-    room_revenue = list(room_rev_qs)
+    room_revenue = [
+        {'room__name': row['room__name'], 'rev': float(row['rev'])}
+        for row in room_rev_qs
+    ]
 
     # Usage by computer
     computer_usage = list(

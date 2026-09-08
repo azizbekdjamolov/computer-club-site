@@ -7,23 +7,7 @@
 <div class="page-head">
     <div>
         <h1>To'lovlar</h1>
-        <p class="muted">Barcha mijoz to'lovlari · naqd, karta va boshqa usullar</p>
-    </div>
-    <div class="head-actions">
-        <a href="{% url 'dashboard' %}" class="btn btn-primary"><i data-lucide="play"></i> Sessiya boshlash</a>
-    </div>
-</div>
-
-<div class="stat-grid three">
-    <div class="stat-card">
-        <span class="t-icon"><i data-lucide="calendar"></i></span>
-        <span class="stat-value">{{ today_total|money }}</span>
-        <span class="stat-label">Bugungi to'lovlar ({{ site_settings.currency }})</span>
-    </div>
-    <div class="stat-card">
-        <span class="t-icon"><i data-lucide="wallet"></i></span>
-        <span class="stat-value">{{ total|money }}</span>
-        <span class="stat-label">Jami to'lovlar ({{ site_settings.currency }})</span>
+        <p class="muted">Bugungi jami: <strong>{{ today_total|money }} {{ site_settings.currency }}</strong> · Barchasi: <strong>{{ total|money }} {{ site_settings.currency }}</strong></p>
     </div>
 </div>
 

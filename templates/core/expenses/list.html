@@ -7,18 +7,10 @@
 <div class="page-head">
     <div>
         <h1>Xarajatlar</h1>
-        <p class="muted">Keladigan xarajatlar ro'yxati</p>
+        <p class="muted">Jami xarajatlar: <strong>{{ total|money }} {{ site_settings.currency }}</strong></p>
     </div>
     <div class="head-actions">
         <a href="{% url 'expense_create' %}" class="btn btn-primary"><i data-lucide="plus"></i> Xarajat qo'shish</a>
-    </div>
-</div>
-
-<div class="stat-grid three">
-    <div class="stat-card">
-        <span class="t-icon"><i data-lucide="receipt"></i></span>
-        <span class="stat-value">{{ total|money }}</span>
-        <span class="stat-label">Jami xarajatlar ({{ site_settings.currency }})</span>
     </div>
 </div>
 
@@ -46,5 +38,16 @@
             </tbody>
         </table>
     </div>
+    {% if expenses.has_other_pages %}
+    <div class="pagination">
+        {% if expenses.has_previous %}
+        <a class="page-btn" href="?page={{ expenses.previous_page_number }}"><i data-lucide="chevron-left"></i></a>
+        {% endif %}
+        <span class="page-btn current">{{ expenses.number }} / {{ expenses.paginator.num_pages }}</span>
+        {% if expenses.has_next %}
+        <a class="page-btn" href="?page={{ expenses.next_page_number }}"><i data-lucide="chevron-right"></i></a>
+        {% endif %}
+    </div>
+    {% endif %}
 </div>
 {% endblock %}
