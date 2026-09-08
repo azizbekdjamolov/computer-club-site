@@ -138,6 +138,9 @@ class Session(models.Model):
     actual_end_time = models.DateTimeField(
         null=True, blank=True, verbose_name='Amalda tugash'
     )
+    paused_at = models.DateTimeField(
+        null=True, blank=True, verbose_name='Pauza (boshlangan)'
+    )
     duration_minutes = models.IntegerField(
         default=0, verbose_name='Vaqt (daqiqa)'
     )
@@ -188,6 +191,21 @@ class Session(models.Model):
     @property
     def is_overpaid(self):
         return self.paid_amount > self.total_price
+
+    @property
+    def is_paused(self):
+        return self.status == 'active' and self.paused_at is not None
+
+    def toggle_pause(self):
+        """Pauza berish / davom ettirish. Davom ettirilganda start_time shifflashadi."""
+        now = timezone.now()
+        if self.paused_at:
+            paused_duration = now - self.paused_at
+            self.start_time = self.start_time + paused_duration
+            self.paused_at = None
+        else:
+            self.paused_at = now
+        self.save()
 
     def current_duration_minutes(self):
         if self.status == 'active':

@@ -1,24 +1,40 @@
 {% extends 'base.html' %}
-{% block title %}Yangi sessiya{% endblock %}
+{% block title %}New Session{% endblock %}
+{% block page_label %}New Session{% endblock %}
 
 {% block content %}
 <div class="page-head">
-    <div><h1>Yangi sessiya</h1><p class="muted">Mijoz, xona va kompyuter tanlang</p></div>
-    <a href="{% url 'active_sessions' %}" class="btn btn-ghost"><i class="fas fa-arrow-left"></i> Orqaga</a>
+    <div>
+        <h1>New Session</h1>
+        <p class="muted">Mijoz, xona va kompyuterni tanlang · sessiyani ishga tushiring</p>
+    </div>
+    <div class="head-actions">
+        <a href="{% url 'active_sessions' %}" class="btn btn-ghost"><i data-lucide="arrow-left"></i> Orqaga</a>
+    </div>
 </div>
+
 <div class="card form-card">
     <form method="post">
         {% csrf_token %}
+
+        <div class="card-head"><h3><span class="t-icon"><i data-lucide="user"></i></span> 1 · Customer</h3>
+            <a href="{% url 'customer_create' %}" class="link-more">Yangi mijoz yaratish</a>
+        </div>
+        <div class="form-group">
+            <label>Mijoz *</label>
+            <select name="customer" class="form-control" required>
+                <option value="">-- Tanlang --</option>
+                {% for c in customers %}
+                <option value="{{ c.id }}">{{ c.full_name }} ({{ c.phone|default:"tel yo'q" }})</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="divider"></div>
+        <div class="card-head"><h3><span class="t-icon"><i data-lucide="monitor"></i></span> 2 · PC selection</h3></div>
         <div class="form-row">
-            <div class="form-group"><label>Mijoz *</label>
-                <select name="customer" class="form-control" required>
-                    <option value="">-- Tanlang --</option>
-                    {% for c in customers %}
-                    <option value="{{ c.id }}">{{ c.full_name }} ({{ c.phone|default:"tel yo'q" }})</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="form-group"><label>Xona *</label>
+            <div class="form-group">
+                <label>Xona *</label>
                 <select name="room" id="sessRoom" class="form-control" required>
                     <option value="">-- Tanlang --</option>
                     {% for r in rooms %}
@@ -26,12 +42,16 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="form-group"><label>Kompyuter *</label>
+            <div class="form-group">
+                <label>Kompyuter *</label>
                 <select name="computer" id="sessComputer" class="form-control" required>
                     <option value="">-- Avval xonani tanlang --</option>
                 </select>
             </div>
         </div>
+
+        <div class="divider"></div>
+        <div class="card-head"><h3><span class="t-icon"><i data-lucide="clock"></i></span> 3 · Time</h3></div>
         <div class="form-row">
             <div class="form-group"><label>Boshlanish vaqti</label>
                 <input type="datetime-local" name="start_time" class="form-control" id="sessStart">
@@ -43,22 +63,34 @@
                 <input type="datetime-local" name="planned_end_time" class="form-control">
             </div>
         </div>
-        <div class="form-row">
-            <div class="form-group"><label>Hisoblash usuli</label>
-                <select name="calculation_method" class="form-control">
-                    <option value="hourly">Soatlik (real vaqt)</option>
-                    <option value="per_minute">Har daqiqada</option>
-                    <option value="fixed">Belgilangan muddat</option>
-                </select>
-            </div>
-            <div class="form-group"><label>To'lov</label>
-                <input type="number" name="paid_amount" class="form-control" min="0">
-            </div>
+        <div class="form-group"><label>Hisoblash usuli</label>
+            <select name="calculation_method" class="form-control">
+                <option value="hourly">Soatlik (real vaqt)</option>
+                <option value="per_minute">Har daqiqada</option>
+                <option value="fixed">Belgilangan muddat</option>
+            </select>
         </div>
+
+        <div class="divider"></div>
+        <div class="card-head"><h3><span class="t-icon"><i data-lucide="credit-card"></i></span> 4 · Payment</h3></div>
+        <input type="hidden" name="payment_method" id="pm-create" value="cash">
+        <div class="pm-grid" data-target="pm-create">
+            <button type="button" class="selected" data-value="cash">Cash</button>
+            <button type="button" data-value="card">Card</button>
+            <button type="button" data-value="click">Click</button>
+            <button type="button" data-value="payme">Payme</button>
+            <button type="button" data-value="uzcard">UzCard</button>
+            <button type="button" data-value="humo">Humo</button>
+        </div>
+        <div class="form-group" style="max-width:260px;"><label>To'lov (ixtiyoriy)</label>
+            <input type="number" name="paid_amount" class="form-control" min="0">
+        </div>
+
         <div class="form-group"><label>Izoh</label>
             <textarea name="note" class="form-control" rows="2"></textarea>
         </div>
-        <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-play"></i> Sessiyani boshlash</button>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg"><i data-lucide="play"></i> Sessiyani boshlash</button>
     </form>
 </div>
 {% endblock %}
@@ -87,8 +119,7 @@ document.addEventListener('DOMContentLoaded', function(){
             });
     });
     const startInput = document.getElementById('sessStart');
-    const now = new Date();
-    startInput.value = now.toISOString().slice(0,16);
+    if (!startInput.value) startInput.value = window.prefillNow();
 });
 </script>
 {% endblock %}

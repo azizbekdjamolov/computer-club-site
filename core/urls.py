@@ -43,6 +43,9 @@ urlpatterns = [
     path('sessions/<int:pk>/edit/', views.session_update, name='session_update'),
     path('sessions/<int:pk>/stop/', views.session_stop, name='session_stop'),
     path('sessions/<int:pk>/cancel/', views.session_cancel, name='session_cancel'),
+    path('sessions/<int:pk>/pause/', views.session_pause, name='session_pause'),
+    path('sessions/<int:pk>/transfer/', views.session_transfer, name='session_transfer'),
+    path('sessions/<int:pk>/rate/', views.session_rate, name='session_rate'),
 
     # Payments
     path('payments/', views.payment_list, name='payment_list'),

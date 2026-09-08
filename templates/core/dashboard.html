@@ -2,80 +2,102 @@
 {% load static %}
 {% load core_extras %}
 {% block title %}Dashboard - {{ site_settings.club_name }}{% endblock %}
+{% block page_label %}Dashboard{% endblock %}
 
 {% block content %}
 <div class="page-head">
     <div>
         <h1>Dashboard</h1>
-        <p class="muted">{{ site_settings.club_name }} boshqaruv paneli</p>
+        <p class="muted">{{ site_settings.club_name }} boshqaruv paneli · bugungi operatsion ko'rsatkichlar</p>
     </div>
-    <button class="btn btn-primary btn-lg" id="quickStartBtn">
-        <i class="fas fa-plus"></i> Yangi mijoz
-    </button>
+    <div class="head-actions">
+        <a href="{% url 'session_create' %}" class="btn btn-ghost"><i data-lucide="play"></i> Start Session</a>
+        <button class="btn btn-primary" id="quickStartBtn">
+            <i data-lucide="user-plus"></i> New Customer
+        </button>
+    </div>
 </div>
 
-<div class="stats-grid">
-    <div class="stat-card accent">
-        <div class="stat-icon"><i class="fas fa-wallet"></i></div>
-        <div class="stat-info">
-            <span class="stat-label">Bugungi daromad</span>
-            <strong class="stat-value">{{ revenue_today }} <small>{{ site_settings.currency }}</small></strong>
+<!-- Today's overview -->
+<div class="stat-grid">
+    <div class="stat-card accent stat-card--hero">
+        <div class="stat-top">
+            <div>
+                <span class="stat-icon"><i data-lucide="wallet"></i></span>
+                <span class="stat-label">Today's Revenue</span>
+                <div class="stat-value">{{ revenue_today|money }} <small>{{ site_settings.currency }}</small></div>
+                <div class="stat-sub">
+                    <i data-lucide="trending-up"></i>
+                    Qabul qilingan: {{ paid_today|money }} {{ site_settings.currency }}
+                </div>
+            </div>
+            <div class="stat-hero-foot">
+                <a href="{% url 'reports' %}" class="btn btn-ghost sm"><i data-lucide="chart-line"></i> Reports</a>
+                <a href="{% url 'payment_list' %}" class="btn btn-ghost sm"><i data-lucide="credit-card"></i> Payments</a>
+            </div>
         </div>
     </div>
-    <div class="stat-card green">
-        <div class="stat-icon"><i class="fas fa-desktop"></i></div>
-        <div class="stat-info">
-            <span class="stat-label">Band kompyuterlar</span>
-            <strong class="stat-value">{{ occupied_count }} <small>/ {{ total_computers }}</small></strong>
-        </div>
-    </div>
-    <div class="stat-card blue">
-        <div class="stat-icon"><i class="fas fa-plug"></i></div>
-        <div class="stat-info">
-            <span class="stat-label">Bo'sh kompyuterlar</span>
-            <strong class="stat-value">{{ free_count }}</strong>
-        </div>
-    </div>
+
     <div class="stat-card purple">
-        <div class="stat-icon"><i class="fas fa-server"></i></div>
+        <span class="stat-icon"><i data-lucide="play-circle"></i></span>
         <div class="stat-info">
-            <span class="stat-label">Jami kompyuterlar</span>
-            <strong class="stat-value">{{ total_computers }}</strong>
+            <span class="stat-label">Active Sessions</span>
+            <div class="stat-value">{{ active_count }}</div>
+            <div class="stat-sub"><i data-lucide="activity"></i> hozir ro'yxatda</div>
         </div>
     </div>
-    <div class="stat-card cyan">
-        <div class="stat-icon"><i class="fas fa-users"></i></div>
+
+    <div class="stat-card green">
+        <span class="stat-icon"><i data-lucide="monitor"></i></span>
         <div class="stat-info">
-            <span class="stat-label">Bugungi mijozlar</span>
-            <strong class="stat-value">{{ customers_today }}</strong>
+            <span class="stat-label">Available Computers</span>
+            <div class="stat-value">{{ free_count }} <small>/ {{ total_computers }}</small></div>
+            <div class="stat-sub"><i data-lucide="check-circle-2"></i> bo'sh, foydalanishga tayyor</div>
         </div>
     </div>
-    <div class="stat-card orange">
-        <div class="stat-icon"><i class="fas fa-play"></i></div>
-        <div class="stat-info">
-            <span class="stat-label">Faol sessiyalar</span>
-            <strong class="stat-value">{{ active_count }}</strong>
-        </div>
-    </div>
+
     <div class="stat-card red">
-        <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
+        <span class="stat-icon"><i data-lucide="cpu"></i></span>
         <div class="stat-info">
-            <span class="stat-label">Qarzdor mijozlar</span>
-            <strong class="stat-value">{{ debtors|length }}</strong>
+            <span class="stat-label">Occupied Computers</span>
+            <div class="stat-value">{{ occupied_count }}</div>
+            <div class="stat-sub"><i data-lucide="users"></i> {{ debtors|length }} qarzdor</div>
         </div>
     </div>
-    <div class="stat-card gray">
-        <div class="stat-icon"><i class="fas fa-receipt"></i></div>
+
+    <div class="stat-card cyan">
+        <span class="stat-icon"><i data-lucide="users"></i></span>
         <div class="stat-info">
-            <span class="stat-label">Bugungi xarajatlar</span>
-            <strong class="stat-value">{{ expenses_today }} <small>{{ site_settings.currency }}</small></strong>
+            <span class="stat-label">Today's Customers</span>
+            <div class="stat-value">{{ customers_today }}</div>
+            <div class="stat-sub"><i data-lucide="user-check"></i> noyob mijozlar</div>
         </div>
     </div>
+
+    <div class="stat-card orange">
+        <span class="stat-icon"><i data-lucide="receipt"></i></span>
+        <div class="stat-info">
+            <span class="stat-label">Today's Expenses</span>
+            <div class="stat-value">{{ expenses_today|money }} <small>{{ site_settings.currency }}</small></div>
+            <div class="stat-sub"><a href="{% url 'expense_list' %}" class="link">Batafsil</a></div>
+        </div>
+    </div>
+
     <div class="stat-card success">
-        <div class="stat-icon"><i class="fas fa-chart-pie"></i></div>
+        <span class="stat-icon"><i data-lucide="landmark"></i></span>
         <div class="stat-info">
-            <span class="stat-label">Sof daromad</span>
-            <strong class="stat-value">{{ net_profit }} <small>{{ site_settings.currency }}</small></strong>
+            <span class="stat-label">Net Revenue</span>
+            <div class="stat-value">{{ net_profit|money }} <small>{{ site_settings.currency }}</small></div>
+            <div class="stat-sub"><i data-lucide="calculator"></i> daromad − xarajat</div>
+        </div>
+    </div>
+
+    <div class="stat-card blue">
+        <span class="stat-icon"><i data-lucide="calendar-clock"></i></span>
+        <div class="stat-info">
+            <span class="stat-label">Reservations</span>
+            <div class="stat-value">{{ upcoming_res|length }}</div>
+            <div class="stat-sub"><a href="{% url 'reservation_list' %}" class="link">Kelgusi rejalar</a></div>
         </div>
     </div>
 </div>
@@ -84,42 +106,58 @@
     <div class="room-grid-wrap">
         <div class="card">
             <div class="card-head">
-                <h3>Kompyuter holati</h3>
-                <div class="legend">
-                    <span><i class="dot green"></i>Bo'sh</span>
-                    <span><i class="dot red"></i>Band</span>
-                    <span><i class="dot yellow"></i>Rezerv</span>
-                    <span><i class="dot gray"></i>Nosoz</span>
+                <h3><span class="t-icon"><i data-lucide="server"></i></span> Computer rooms</h3>
+                <div class="legends">
+                    <span><i class="dot green"></i>Available</span>
+                    <span><i class="dot red"></i>Occupied</span>
+                    <span><i class="dot yellow"></i>Reserved</span>
+                    <span><i class="dot gray"></i>Maintenance</span>
                 </div>
             </div>
             <div class="room-grid">
                 {% for room in rooms %}
                 <div class="room-block">
                     <div class="room-title">
-                        <strong>{{ room.name }}</strong>
-                        <span class="muted">{{ room.hourly_price }} {{ site_settings.currency }}/soat</span>
+                        <strong><i data-lucide="network"></i>{{ room.name }}</strong>
+                        <span class="rate"><b>{{ room.hourly_price|money }}</b> {{ site_settings.currency }}/soat</span>
                     </div>
                     <div class="pc-grid">
                         {% for pc in room.computers.all %}
-                        <a href="#pc-{{ pc.id }}" class="pc-card {{ pc.status }}"
+                        {% with pc_session=active_session_map|get_item:pc.id %}
+                        <a href="#pc-{{ pc.id }}" class="pc-card {{ pc.status }}{% if pc.status == 'occupied' %} js-runner{% endif %}"
                            data-id="{{ pc.id }}" data-name="{{ pc.name }}"
                            data-status="{{ pc.status }}"
-                           data-room="{{ pc.room_id }}">
+                           data-room="{{ pc.room_id }}"
+                           {% if pc.status == 'occupied' and pc_session %}
+                           data-session="{{ pc_session.id }}"
+                           data-start="{{ pc_session.start_time|date:'c' }}"
+                           data-price="{{ pc_session.hourly_price }}"
+                           data-method="{{ pc_session.calculation_method }}"
+                           data-duration="{{ pc_session.duration_minutes }}"
+                           data-paid="{{ pc_session.paid_amount }}"
+                           {% if pc_session.is_paused %}data-paused="{{ pc_session.paused_at|date:'c' }}"{% endif %}
+                           {% endif %}>
                             <span class="pc-status-dot {{ pc.status }}"></span>
-                            <strong>{{ pc.name }}</strong>
-                            {% with pc_session=active_session_map|get_item:pc.id %}
+                            <span class="pc-name">{{ pc.name }}</span>
                             {% if pc.status == 'occupied' and pc_session %}
-                            <small style="color: var(--red)">{{ pc_session.customer.full_name }}</small>
+                            <span class="pc-meta"><b>{{ pc_session.customer.full_name }}</b></span>
+                            <span class="pc-meta"><span class="js-elapsed">--:--:--</span> · <span class="js-price">-</span></span>
+                            {% else %}
+                            <span class="pc-meta">{{ pc.status|status_label }}</span>
                             {% endif %}
-                            {% endwith %}
                         </a>
+                        {% endwith %}
                         {% empty %}
                         <div class="no-computers">Kompyuter yo'q</div>
                         {% endfor %}
                     </div>
                 </div>
                 {% empty %}
-                <div class="empty-state">Hozircha xona yo'q. <a href="{% url 'room_create' %}">Xona qo'shing</a></div>
+                <div class="empty-state full">
+                    <span class="empty-ic"><i data-lucide="box"></i></span>
+                    <strong>Hozircha xona yo'q</strong>
+                    <a href="{% url 'room_create' %}" class="btn btn-primary sm"><i data-lucide="plus"></i> Xona qo'shing</a>
+                </div>
                 {% endfor %}
             </div>
         </div>
@@ -127,7 +165,7 @@
 
     <aside class="side-panels">
         <div class="card">
-            <div class="card-head"><h3>Faol sessiyalar</h3><a href="{% url 'active_sessions' %}">Barchasi</a></div>
+            <div class="card-head"><h3><span class="t-icon"><i data-lucide="play-circle"></i></span> Active Sessions</h3><a class="link-more" href="{% url 'active_sessions' %}">Barchasi</a></div>
             <div class="mini-list">
                 {% for s in debtors %}
                 <a class="mini-item" href="{% url 'session_detail' s.session.id %}">
@@ -136,7 +174,7 @@
                         <strong>{{ s.session.computer.name }}</strong>
                         <small>{{ s.session.customer.full_name }}</small>
                     </div>
-                    <span class="mini-amount">{{ s.remaining }} {{ site_settings.currency }}</span>
+                    <span class="mini-amount">{{ s.remaining|money }} {{ site_settings.currency }}</span>
                 </a>
                 {% empty %}
                 <div class="empty-state small">Faol sessiyalar yo'q</div>
@@ -144,13 +182,13 @@
             </div>
         </div>
         <div class="card">
-            <div class="card-head"><h3>Kelgusi rezervatsiyalar</h3><a href="{% url 'reservation_list' %}">Barchasi</a></div>
+            <div class="card-head"><h3><span class="t-icon"><i data-lucide="calendar-check-2"></i></span> Upcoming Reservations</h3><a class="link-more" href="{% url 'reservation_list' %}">Barchasi</a></div>
             <div class="mini-list">
                 {% for r in upcoming_res %}
                 <div class="mini-item">
                     <span class="mini-dot yellow"></span>
                     <div>
-                        <strong>{{ r.computer.name }}</strong>
+                        <strong>{{ r.computer.name }} · {{ r.room.name }}</strong>
                         <small>{{ r.customer.full_name }} · {{ r.start_time|time:"H:i" }}</small>
                     </div>
                 </div>
@@ -160,7 +198,7 @@
             </div>
         </div>
         <div class="card">
-            <div class="card-head"><h3>So'nggi sessiyalar</h3><a href="{% url 'session_list' %}">Barchasi</a></div>
+            <div class="card-head"><h3><span class="t-icon"><i data-lucide="history"></i></span> Recent Sessions</h3><a class="link-more" href="{% url 'session_list' %}">Barchasi</a></div>
             <div class="mini-list">
                 {% for s in recent_sessions %}
                 <a class="mini-item" href="{% url 'session_detail' s.id %}">
@@ -169,7 +207,7 @@
                         <strong>{{ s.customer.full_name }}</strong>
                         <small>{{ s.computer.name }} · {{ s.start_time|date:"d.m H:i" }}</small>
                     </div>
-                    <span class="mini-amount">{{ s.total_price }} {{ site_settings.currency }}</span>
+                    <span class="mini-amount">{{ s.total_price|money }}</span>
                 </a>
                 {% empty %}
                 <div class="empty-state small">Sessiyalar yo'q</div>
@@ -179,28 +217,145 @@
     </aside>
 </div>
 
+<!-- ============ Active session detail modals (per occupied computer) ============ -->
+{% for pc_id, s in active_session_map.items %}
+<div class="modal-backdrop" id="sessModal{{ s.id }}">
+    <div class="modal">
+        <div class="modal-head">
+            <div>
+                <h3><i data-lucide="monitor"></i> {{ s.computer.name }}
+                    {% if s.is_paused %}<span class="pause-badge"><i data-lucide="pause"></i> Paused</span>{% endif %}
+                </h3>
+                <div class="m-head-sub">
+                    <span class="status-pill {% if s.is_paused %}reserved{% else %}occupied{% endif %}">
+                        <span class="pill-dot"></span>{% if s.is_paused %}PAUZA{% else %}BAND{% endif %}
+                    </span>
+                    <a href="{% url 'session_detail' s.id %}" class="link">Batafsil</a>
+                </div>
+            </div>
+            <button type="button" class="modal-close" onclick="closeModal()"><i data-lucide="x"></i></button>
+        </div>
+
+        <div class="sess-summary js-runner"
+             data-start="{{ s.start_time|date:'c' }}"
+             data-price="{{ s.hourly_price }}"
+             data-method="{{ s.calculation_method }}"
+             data-duration="{{ s.duration_minutes }}"
+             data-paid="{{ s.paid_amount }}"
+             {% if s.is_paused %}data-paused="{{ s.paused_at|date:'c' }}"{% endif %}>
+            <div class="sess-row"><span>Mijoz</span><b>{{ s.customer.full_name }}</b></div>
+            <div class="sess-row"><span>Telefon</span><b>{{ s.customer.phone|default:"-" }}</b></div>
+            <div class="sess-row"><span>Xona</span><b>{{ s.room.name }}</b></div>
+            <div class="sess-row"><span>Boshlangan</span><b>{{ s.start_time|date:"H:i" }}</b></div>
+            <div class="sess-row"><span>O'tgan vaqt</span><b class="js-elapsed">--:--:--</b></div>
+            <div class="sess-row"><span>Joriy narx</span><b class="js-price">-</b></div>
+            <div class="sess-row emph"><span>To'langan</span><b>{{ s.paid_amount|money }} {{ site_settings.currency }}</b></div>
+            <div class="sess-row emph"><span>Qolgan</span><b class="js-remaining">-</b></div>
+        </div>
+
+        <span class="m-label"><i data-lucide="credit-card" style="width:13px;height:13px;margin-right:4px;"></i> Add payment</span>
+        <form method="post" action="{% url 'payment_add' s.id %}">
+            {% csrf_token %}
+            <input type="hidden" name="payment_method" id="pm-{{ s.id }}" value="cash">
+            <div class="pm-grid" data-target="pm-{{ s.id }}">
+                <button type="button" class="selected" data-value="cash">Cash</button>
+                <button type="button" data-value="card">Card</button>
+                <button type="button" data-value="click">Click</button>
+                <button type="button" data-value="payme">Payme</button>
+                <button type="button" data-value="uzcard">UzCard</button>
+                <button type="button" data-value="humo">Humo</button>
+            </div>
+            <div class="form-row">
+                <div class="form-group mb-20" style="margin-bottom:0;">
+                    <label>Summa</label>
+                    <input type="number" name="amount" class="form-control" min="1" required placeholder="0">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-success btn-block btn-lg mt-16"><i data-lucide="plus"></i> To'lov qo'shish</button>
+        </form>
+
+        <div class="divider"></div>
+
+        <div class="sess-actions" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px;">
+            <form method="post" action="{% url 'session_pause' s.id %}" style="flex:1; min-width:120px;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-ghost btn-block">
+                    <i data-lucide="{% if s.is_paused %}play{% else %}pause{% endif %}"></i>
+                    {% if s.is_paused %}Davom ettirish{% else %}Pauza{% endif %}
+                </button>
+            </form>
+            <form method="post" action="{% url 'session_stop' s.id %}" data-confirm="Sessiyani tugatasizmi?" style="flex:1; min-width:120px;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger btn-block"><i data-lucide="square"></i> Stop Session</button>
+            </form>
+        </div>
+
+        <span class="m-label"><i data-lucide="arrow-left-right" style="width:13px;height:13px;margin-right:4px;"></i> Transfer computer</span>
+        <form method="post" action="{% url 'session_transfer' s.id %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <select name="computer" class="form-control" required>
+                    {% for r in rooms %}
+                    <optgroup label="{{ r.name }}">
+                        {% for pc in r.computers.all %}
+                        {% if pc.status != 'occupied' and pc.id != s.computer_id %}
+                        <option value="{{ pc.id }}">{{ pc.name }}{% if pc.status == 'reserved' %} · rezerv{% endif %}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </optgroup>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-ghost btn-block"><i data-lucide="move-right"></i> Ko'chirish</button>
+        </form>
+
+        <div class="divider"></div>
+
+        <span class="m-label"><i data-lucide="pencil-ruler" style="width:13px;height:13px;margin-right:4px;"></i> Change rate</span>
+        <form method="post" action="{% url 'session_rate' s.id %}">
+            {% csrf_token %}
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Soatlik narx</label>
+                    <input type="number" name="hourly_price" class="form-control" min="1" value="{{ s.hourly_price }}" required>
+                </div>
+                <div class="form-group">
+                    <label>Hisoblash usuli</label>
+                    <select name="calculation_method" class="form-control">
+                        <option value="hourly" {% if s.calculation_method == 'hourly' %}selected{% endif %}>Soatlik</option>
+                        <option value="per_minute" {% if s.calculation_method == 'per_minute' %}selected{% endif %}>Har daqiqada</option>
+                        <option value="fixed" {% if s.calculation_method == 'fixed' %}selected{% endif %}>Belgilangan muddat</option>
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-ghost btn-block"><i data-lucide="save"></i> Yangilash</button>
+        </form>
+    </div>
+</div>
+{% endfor %}
+
 <!-- Quick Start Modal -->
 <div class="modal-backdrop" id="quickModal">
     <div class="modal">
         <div class="modal-head">
-            <h3><i class="fas fa-rocket"></i> Tezkor mijoz qo'shish + sessiya</h3>
-            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <h3><i data-lucide="zap"></i> Tezkor mijoz qo'shish + sessiya</h3>
+            <button type="button" class="modal-close" onclick="closeModal()"><i data-lucide="x"></i></button>
         </div>
         <form method="post" action="{% url 'quick_start' %}" id="quickForm">
             {% csrf_token %}
             <div class="form-row">
                 <div class="form-group">
-                    <label>Mijoz ismi *</label>
+                    <label>Customer name *</label>
                     <input type="text" name="customer_name" class="form-control" required>
                 </div>
                 <div class="form-group">
-                    <label>Telefon</label>
+                    <label>Phone</label>
                     <input type="text" name="phone" class="form-control">
                 </div>
             </div>
             <div class="form-row">
                 <div class="form-group">
-                    <label>Xona *</label>
+                    <label>Room *</label>
                     <select name="room" id="qsRoom" class="form-control" required>
                         <option value="">-- Tanlang --</option>
                         {% for room in rooms %}
@@ -209,7 +364,7 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Kompyuter *</label>
+                    <label>Computer *</label>
                     <select name="computer" id="qsComputer" class="form-control" required>
                         <option value="">-- Avval xonani tanlang --</option>
                     </select>
@@ -217,21 +372,21 @@
             </div>
             <div class="form-row">
                 <div class="form-group">
-                    <label>Boshlanish vaqti</label>
+                    <label>Start time</label>
                     <input type="datetime-local" name="start_time" class="form-control" id="qsStart">
                 </div>
                 <div class="form-group">
-                    <label>Davomiylik (daqiqa)</label>
+                    <label>Duration (min)</label>
                     <input type="number" name="duration_minutes" class="form-control" min="1" id="qsDuration">
                 </div>
             </div>
             <div class="form-row">
                 <div class="form-group">
-                    <label>Tugash vaqti</label>
+                    <label>End time</label>
                     <input type="datetime-local" name="planned_end_time" class="form-control" id="qsEnd">
                 </div>
                 <div class="form-group">
-                    <label>To'lov</label>
+                    <label>Payment</label>
                     <input type="number" name="paid_amount" class="form-control" id="qsPaid">
                 </div>
             </div>
@@ -246,7 +401,7 @@
                     <option value="humo">Humo</option>
                 </select>
             </div>
-            <button type="submit" class="btn btn-primary btn-block btn-lg"><i class="fas fa-play"></i> START SESSION</button>
+            <button type="submit" class="btn btn-primary btn-block btn-lg"><i data-lucide="play"></i> Start Session</button>
         </form>
     </div>
 </div>
@@ -264,5 +419,6 @@ const CSRF = '{{ csrf_token }}';
 const CURRENCY = '{{ site_settings.currency }}';
 const QUICK_URL = '{% url "quick_start" %}';
 </script>
+<script src="{% static 'js/active_sessions.js' %}"></script>
 <script src="{% static 'js/dashboard.js' %}"></script>
 {% endblock %}

@@ -1,19 +1,27 @@
 {% extends 'base.html' %}
 {% block title %}{{ title }}{% endblock %}
+{% block page_label %}Customers · Form{% endblock %}
 
 {% block content %}
 <div class="page-head">
-    <div><h1>{{ title }}</h1></div>
-    <a href="{% url 'customer_list' %}" class="btn btn-ghost"><i class="fas fa-arrow-left"></i> Orqaga</a>
+    <div>
+        <h1>{{ title }}</h1>
+        <p class="muted">Mijoz ma'lumotlari</p>
+    </div>
+    <div class="head-actions">
+        <a href="{% url 'customer_list' %}" class="btn btn-ghost"><i data-lucide="arrow-left"></i> Orqaga</a>
+    </div>
 </div>
+
 <div class="card form-card">
     <form method="post">
         {% csrf_token %}
         {{ form.non_field_errors }}
+        <div class="card-head"><h3><span class="t-icon"><i data-lucide="user"></i></span> Customer</h3></div>
         <div class="form-group"><label>Ism familiya *</label>{{ form.full_name }}</div>
         <div class="form-group"><label>Telefon</label>{{ form.phone }}</div>
         <div class="form-group"><label>Izoh</label>{{ form.note }}</div>
-        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Saqlash</button>
+        <button type="submit" class="btn btn-primary"><i data-lucide="save"></i> Saqlash</button>
     </form>
 </div>
 {% endblock %}

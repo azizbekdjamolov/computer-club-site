@@ -1,9 +1,47 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // ---- Quick start modal ----
+    // ---------- Lucide icons (initial render) ----------
+    renderIcons();
+
+    // ---------- Sidebar toggle ----------
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    if (sidebar && sidebarToggle) {
+        sidebarToggle.addEventListener('click', function () {
+            sidebar.classList.toggle('open');
+        });
+        document.addEventListener('click', function (e) {
+            if (window.innerWidth <= 900 && sidebar.classList.contains('open')) {
+                if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
+                    sidebar.classList.remove('open');
+                }
+            }
+        });
+    }
+
+    // ---------- Notifications dropdown ----------
+    const notifWrap = document.getElementById('notificationsWrap');
+    const notifToggle = document.getElementById('notifToggle');
+    const notifDropdown = document.getElementById('notifDropdown');
+    if (notifWrap && notifToggle && notifDropdown) {
+        notifToggle.addEventListener('click', function (e) {
+            e.stopPropagation();
+            notifDropdown.classList.toggle('open');
+        });
+        document.addEventListener('click', function (e) {
+            if (!notifWrap.contains(e.target)) notifDropdown.classList.remove('open');
+        });
+    }
+
+    // ---------- Modals ----------
     const quickStartBtn = document.getElementById('quickStartBtn');
     const quickModal = document.getElementById('quickModal');
 
-    function openModal(id) { const el = document.getElementById(id); if (el) el.classList.add('open'); }
+    window.openModal = function (id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.add('open');
+        renderIcons();
+    };
     window.closeModal = function () {
         document.querySelectorAll('.modal-backdrop').forEach(function (m) { m.classList.remove('open'); });
     };
@@ -11,17 +49,16 @@ document.addEventListener('DOMContentLoaded', function () {
         quickStartBtn.addEventListener('click', function () { openModal('quickModal'); });
     }
 
-    // Escape to close modals
     document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') closeModal();
     });
     document.querySelectorAll('.modal-backdrop').forEach(function (m) {
-        m.addEventListener('click', function (e) {
+        m.addEventListener('mousedown', function (e) {
             if (e.target === m) m.classList.remove('open');
         });
     });
 
-    // ---- Dynamic computers for quick form ----
+    // ---------- Dynamic computers for quick form ----------
     const qsRoom = document.getElementById('qsRoom');
     const qsComputer = document.getElementById('qsComputer');
     if (qsRoom && qsComputer) {
@@ -46,25 +83,20 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // ---- Prefill start time in quick modal ----
+    // ---------- Prefill start time in quick modal ----------
     const qsStart = document.getElementById('qsStart');
     if (qsStart && !qsStart.value) {
-        const now = new Date();
-        const pad = function (n) { return String(n).padStart(2, '0'); };
-        qsStart.value = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate()) +
-            'T' + pad(now.getHours()) + ':' + pad(now.getMinutes());
+        qsStart.value = prefillNow();
     }
 
-    // ---- Auto-fill duration -> end time (and vice versa) ----
+    // ---------- Auto-fill duration -> end time (and vice versa) ----------
     const duration = document.getElementById('qsDuration');
     const qsEnd = document.getElementById('qsEnd');
     if (duration && qsEnd && qsStart) {
         function addMinutes(iso, mins) {
             const d = new Date(iso);
             d.setMinutes(d.getMinutes() + mins);
-            const pad = function (n) { return String(n).padStart(2, '0'); };
-            return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) +
-                'T' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+            return toLocal(d);
         }
         duration.addEventListener('change', function () {
             if (this.value && qsStart.value) qsEnd.value = addMinutes(qsStart.value, parseInt(this.value));
@@ -77,14 +109,24 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // ---- PC card click -> info modal ----
+    // ---------- Payment method grid (cash/card/...) ----------
+    document.querySelectorAll('.pm-grid').forEach(function (grid) {
+        const hidden = grid.dataset.target || 'payment_method';
+        grid.querySelectorAll('button').forEach(function (btn) {
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                grid.querySelectorAll('button').forEach(function (b) { b.classList.remove('selected'); });
+                btn.classList.add('selected');
+                const input = document.getElementById(hidden) || document.querySelector('input[name="' + hidden + '"]');
+                if (input) input.value = btn.dataset.value;
+            });
+        });
+    });
+
+    // ---------- PC card click -> info modal ----------
     const pcModal = document.getElementById('pcModal');
     const pcModalBody = document.getElementById('pcModalBody');
     const statusText = { available: "Bo'sh", occupied: 'Band', reserved: 'Rezerv', maintenance: 'Nosoz' };
-
-    function fmtMoney(n) {
-        return new Intl.NumberFormat('ru-RU').format(Math.round(n || 0)) + ' ' + (window.CURRENCY || 'UZS');
-    }
 
     document.querySelectorAll('.pc-card').forEach(function (card) {
         card.addEventListener('click', function (e) {
@@ -93,57 +135,55 @@ document.addEventListener('DOMContentLoaded', function () {
             const name = card.dataset.name;
             const status = card.dataset.status;
             const roomId = card.dataset.room;
+            const sessionId = card.dataset.session;
 
             if (status === 'occupied') {
-                fetch('/sessions/active/')
-                    .then(function (r) { return r.text(); })
-                    .catch(function () { return ''; })
-                    .then(function () {
-                        // Server-side detail is easier: just link to active sessions detail via search
-                    });
+                // Active session -> open dedicated detail modal (server-rendered)
+                const sessModal = document.getElementById('sessModal' + sessionId);
+                if (sessModal) { openModal('sessModal' + sessionId); return; }
                 window.location.href = '/sessions/active/';
                 return;
             }
 
             const timeInput = '<input type="datetime-local" name="start_time" id="pcStart" class="form-control" value="' + prefillNow() + '">';
             pcModalBody.innerHTML =
-                '<div class="modal-head"><h3><i class="fas fa-desktop"></i> ' + name + '</h3>' +
-                '<button class="modal-close" onclick="closeModal()">&times;</button></div>' +
-                '<div class="pc-status-line"><span class="status-pill ' + status + '">' + (statusText[status] || status) + '</span></div>' +
+                '<div class="modal-head"><div><h3><i data-lucide="monitor"></i> ' + name + '</h3>' +
+                '<div class="m-head-sub"><span class="status-pill ' + status + '">' + (statusText[status] || status) + '</span></div></div>' +
+                '<button type="button" class="modal-close" onclick="closeModal()"><i data-lucide="x"></i></button></div>' +
                 '<form method="post" action="' + window.QUICK_URL + '" id="pcStartForm">' +
                 '<input type="hidden" name="csrfmiddlewaretoken" value="' + window.CSRF + '">' +
                 '<input type="hidden" name="room" value="' + roomId + '">' +
                 '<input type="hidden" name="computer" value="' + id + '">' +
-                '<div class="form-group"><label>Mijoz ismi</label>' +
+                '<div class="form-group"><label>Customer name</label>' +
                 '<input type="text" name="customer_name" class="form-control" required placeholder="Ali Valiyev"></div>' +
-                '<div class="form-group"><label>Telefon</label>' +
+                '<div class="form-group"><label>Phone</label>' +
                 '<input type="text" name="phone" class="form-control" placeholder="998901234567"></div>' +
-                '<div class="form-row"><div class="form-group"><label>Boshlanish</label>' + timeInput + '</div>' +
-                '<div class="form-group"><label>Davomiylik (daq)</label>' +
+                '<div class="form-row"><div class="form-group"><label>Start</label>' + timeInput + '</div>' +
+                '<div class="form-group"><label>Duration (min)</label>' +
                 '<input type="number" name="duration_minutes" class="form-control" min="1"></div></div>' +
-                '<div class="form-row"><div class="form-group"><label>Tugash vaqti</label>' +
+                '<div class="form-row"><div class="form-group"><label>End time</label>' +
                 '<input type="datetime-local" name="planned_end_time" class="form-control"></div>' +
-                '<div class="form-group"><label>To\'lov</label>' +
+                '<div class="form-group"><label>Payment</label>' +
                 '<input type="number" name="paid_amount" class="form-control" min="0"></div></div>' +
-                '<button type="submit" class="btn btn-primary btn-block btn-lg"><i class="fas fa-play"></i> START SESSION</button>' +
+                '<button type="submit" class="btn btn-primary btn-block btn-lg"><i data-lucide="play"></i> Start Session</button>' +
                 '</form>';
             openModal('pcModal');
         });
     });
 
-    function prefillNow() {
-        const now = new Date();
-        const pad = function (n) { return String(n).padStart(2, '0'); };
-        return now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate()) +
-            'T' + pad(now.getHours()) + ':' + pad(now.getMinutes());
-    }
-    window.prefillNow = prefillNow;
-    window.fmtMoney = fmtMoney;
+    // ---------- Global confirm on data-confirm forms ----------
+    document.querySelectorAll('form[data-confirm]').forEach(function (f) {
+        f.addEventListener('submit', function (e) {
+            const msg = f.getAttribute('data-confirm');
+            if (msg && !window.confirm(msg)) e.preventDefault();
+        });
+    });
 
-    // ---- Auto refresh ----
+    // ---------- Auto refresh ----------
     if (window.AUTO_REFRESH && AUTO_REFRESH > 0) {
         setInterval(function () {
-            if (document.querySelector('.global-search input') && document.activeElement === document.querySelector('.global-search input')) return;
+            const searchInput = document.querySelector('.global-search input');
+            if (searchInput && document.activeElement === searchInput) return;
             const path = window.location.pathname;
             if (path === '/' || path === '/sessions/active/') {
                 location.reload();
@@ -151,3 +191,28 @@ document.addEventListener('DOMContentLoaded', function () {
         }, AUTO_REFRESH * 1000);
     }
 });
+
+// ---------- Helpers ----------
+function prefillNow() {
+    const now = new Date();
+    return toLocal(now);
+}
+
+function toLocal(d) {
+    const pad = function (n) { return String(n).padStart(2, '0'); };
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) +
+        'T' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+}
+
+function fmtMoney(n) {
+    return new Intl.NumberFormat('ru-RU').format(Math.round(n || 0)) + ' ' + (window.CURRENCY || 'UZS');
+}
+window.prefillNow = prefillNow;
+window.fmtMoney = fmtMoney;
+
+function renderIcons() {
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+    }
+}
+window.renderIcons = renderIcons;

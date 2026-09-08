@@ -1,11 +1,18 @@
 {% extends 'base.html' %}
 {% load core_extras %}
 {% block title %}Sessions{% endblock %}
+{% block page_label %}Sessions{% endblock %}
 
 {% block content %}
 <div class="page-head">
-    <div><h1>Sessions</h1><p class="muted">Barcha sessiyalar</p></div>
-    <a href="{% url 'session_create' %}" class="btn btn-primary"><i class="fas fa-plus"></i> Yangi sessiya</a>
+    <div>
+        <h1>Sessions</h1>
+        <p class="muted">Barcha sessiyalar tarixi</p>
+    </div>
+    <div class="head-actions">
+        <a href="{% url 'active_sessions' %}" class="btn btn-ghost"><i data-lucide="play-circle"></i> Active</a>
+        <a href="{% url 'session_create' %}" class="btn btn-primary"><i data-lucide="plus"></i> New Session</a>
+    </div>
 </div>
 
 <div class="card">
@@ -17,10 +24,10 @@
             <option value="completed" {% if current_status == 'completed' %}selected{% endif %}>Tugagan</option>
             <option value="cancelled" {% if current_status == 'cancelled' %}selected{% endif %}>Bekor</option>
         </select>
-        <button class="btn btn-ghost"><i class="fas fa-search"></i></button>
+        <button class="btn btn-ghost"><i data-lucide="search"></i></button>
     </form>
     <div class="table-wrap">
-        <table>
+        <table class="table">
             <thead>
                 <tr><th>Sana</th><th>Mijoz</th><th>PC</th><th>Xona</th><th>Vaqt</th><th>Jami</th><th>To'langan</th><th>Qarz</th><th>Holat</th><th></th></tr>
             </thead>
@@ -29,26 +36,33 @@
                 <tr>
                     <td>{{ s.start_time|date:"d.m H:i" }}</td>
                     <td><a href="{% url 'customer_detail' s.customer.id %}" class="link">{{ s.customer.full_name }}</a></td>
-                    <td>{{ s.computer.name }}</td>
+                    <td><strong>{{ s.computer.name }}</strong></td>
                     <td>{{ s.room.name }}</td>
                     <td>{{ s.duration_minutes }} min</td>
                     <td>{{ s.total_price|money }}</td>
                     <td>{{ s.paid_amount|money }}</td>
-                    <td>{% if s.remaining_amount %}{{ s.remaining_amount|money }}{% else %}<span class="text-green">0</span>{% endif %}</td>
-                    <td><span class="status-pill {{ s.status }}">{{ s.status|status_label }}</span></td>
-                    <td><a href="{% url 'session_detail' s.id %}" class="btn-icon"><i class="fas fa-eye"></i></a></td>
+                    <td>{% if s.remaining_amount %}<span class="text-red">{{ s.remaining_amount|money }}</span>{% else %}<span class="text-green">0</span>{% endif %}</td>
+                    <td><span class="status-pill {{ s.status }}"><span class="pill-dot"></span>{{ s.status|status_label }}</span></td>
+                    <td class="actions"><a href="{% url 'session_detail' s.id %}" class="btn-icon" title="View"><i data-lucide="eye"></i></a></td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="10" class="empty-state">Sessiyalar yo'q</td></tr>
+                <tr><td colspan="10"><div class="empty-state">
+                    <span class="empty-ic"><i data-lucide="history"></i></span>
+                    <strong>Sessiyalar yo'q</strong>
+                </div></td></tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
     {% if sessions.has_other_pages %}
     <div class="pagination">
-        {% if sessions.has_previous %}<a href="?page={{ sessions.previous_page_number }}{% if q %}&q={{ q }}{% endif %}">&laquo;</a>{% endif %}
-        <span>{{ sessions.number }} / {{ sessions.paginator.num_pages }}</span>
-        {% if sessions.has_next %}<a href="?page={{ sessions.next_page_number }}{% if q %}&q={{ q }}{% endif %}">&raquo;</a>{% endif %}
+        {% if sessions.has_previous %}
+        <a class="page-btn" href="?page={{ sessions.previous_page_number }}{% if q %}&q={{ q }}{% endif %}"><i data-lucide="chevron-left"></i></a>
+        {% endif %}
+        <span class="page-btn current">{{ sessions.number }} / {{ sessions.paginator.num_pages }}</span>
+        {% if sessions.has_next %}
+        <a class="page-btn" href="?page={{ sessions.next_page_number }}{% if q %}&q={{ q }}{% endif %}"><i data-lucide="chevron-right"></i></a>
+        {% endif %}
     </div>
     {% endif %}
 </div>

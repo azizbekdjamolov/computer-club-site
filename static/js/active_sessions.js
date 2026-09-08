@@ -1,7 +1,8 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const cards = document.querySelectorAll('.active-card');
-    cards.forEach(function (card) {
+    const runners = document.querySelectorAll('.js-runner');
+    runners.forEach(function (card) {
         const startMillis = new Date(card.dataset.start).getTime();
+        const pausedAt = card.dataset.paused ? new Date(card.dataset.paused).getTime() : null;
         const pricePerHour = parseFloat(card.dataset.price);
         const method = card.dataset.method;
         const fixedDur = parseInt(card.dataset.duration);
@@ -28,10 +29,14 @@ document.addEventListener('DOMContentLoaded', function () {
             return amount;
         }
 
-        function compute() {
+        function elapsedSeconds() {
             const now = Date.now();
-            let sec = Math.floor((now - startMillis) / 1000);
-            if (sec < 0) sec = 0;
+            const ref = pausedAt ? Math.min(now, pausedAt) : now;
+            return Math.max(0, Math.floor((ref - startMillis) / 1000));
+        }
+
+        function compute() {
+            let sec = elapsedSeconds();
             const h = String(Math.floor(sec / 3600)).padStart(2, '0');
             const m = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
             const s = String(sec % 60).padStart(2, '0');

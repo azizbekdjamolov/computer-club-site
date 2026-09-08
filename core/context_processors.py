@@ -44,7 +44,7 @@ def build_notifications(settings):
         if s.paid_amount < s.total_price:
             notifications.append({
                 'type': 'warning',
-                'icon': 'alert',
+                'icon': 'triangle-alert',
                 'message': (
                     f'{s.computer.name}: {s.customer.full_name} qarzdor '
                     f'({s.remaining_amount} {settings.currency})'

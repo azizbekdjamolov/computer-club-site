@@ -1,6 +1,6 @@
 import json
 from datetime import date, datetime, time, timedelta
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -60,6 +60,23 @@ def _to_int(value):
 
 def _get_computers_for_room(room_id):
     return Computer.objects.filter(room_id=room_id, is_active=True)
+
+
+def _release_computer(computer):
+    """Kompyuterni bo'shatish (faol rezerv borligini tekshirib)."""
+    has_res = Reservation.objects.filter(
+        computer=computer, status__in=['pending', 'active']
+    ).exists()
+    Computer.objects.filter(pk=computer.pk).update(
+        status='reserved' if has_res else 'available'
+    )
+
+
+def _redirect_back(request, default='active_sessions'):
+    ref = request.META.get('HTTP_REFERER', '')
+    if ref and ref.startswith(request.build_absolute_uri('/')):
+        return redirect(ref)
+    return redirect(default)
 
 
 # ----------------------------------------------------------------------------
@@ -314,7 +331,9 @@ def active_sessions(request):
         'customer', 'computer', 'room'
     ).order_by('start_time')
     return render(request, 'core/sessions/active.html', {
-        'sessions': sessions, 'active_page': 'active-sessions',
+        'sessions': sessions,
+        'rooms_all': Room.objects.filter(is_active=True).prefetch_related('computers'),
+        'active_page': 'active-sessions',
         'now': timezone.now(),
     })
 
@@ -402,7 +421,12 @@ def session_create(request):
             try:
                 paid_dec = Decimal(paid)
                 if paid_dec > 0:
-                    Payment.objects.create(session=session, amount=paid_dec, payment_method='cash')
+                    method = request.POST.get('payment_method') or 'cash'
+                    if method not in dict(Payment.METHOD_CHOICES):
+                        method = 'cash'
+                    Payment.objects.create(
+                        session=session, amount=paid_dec, payment_method=method
+                    )
             except Exception:
                 pass
         messages.success(request, 'Sessiya boshlandi')
@@ -472,10 +496,14 @@ def quick_start(request):
                 try:
                     paid_dec = Decimal(paid)
                     if paid_dec > 0:
-                        Payment.objects.create(session=session, amount=paid_dec, payment_method='cash')
+                        method = request.POST.get('payment_method') or 'cash'
+                        if method not in dict(Payment.METHOD_CHOICES):
+                            method = 'cash'
+                        Payment.objects.create(
+                            session=session, amount=paid_dec, payment_method=method
+                        )
                 except Exception:
                     pass
-
             messages.success(request, f'Sessiya boshlandi: {customer.full_name} - {computer.name}')
             return redirect('active_sessions')
         else:
@@ -510,6 +538,73 @@ def session_cancel(request, pk):
     session.save()
     messages.warning(request, 'Sessiya bekor qilindi')
     return redirect('active_sessions')
+
+
+@login_required
+@require_POST
+def session_pause(request, pk):
+    session = get_object_or_404(Session, pk=pk)
+    if session.status != 'active':
+        messages.info(request, 'Sessiya faol emas')
+        return redirect('active_sessions')
+    was_paused = session.is_paused
+    session.toggle_pause()
+    if was_paused:
+        messages.success(request, f'Sessiya davom ettirildi: {session.computer.name}')
+    else:
+        messages.info(request, f'Sessiya pauza qilindi: {session.computer.name}')
+    return redirect('active_sessions')
+
+
+@login_required
+@require_POST
+def session_transfer(request, pk):
+    session = get_object_or_404(Session, pk=pk)
+    if session.status != 'active':
+        messages.error(request, 'Sessiya faol emas')
+        return redirect('active_sessions')
+    new_pk = _to_int(request.POST.get('computer'))
+    new_pc = Computer.objects.filter(pk=new_pk, is_active=True).first()
+    if not new_pc:
+        messages.error(request, 'Kompyuter topilmadi')
+        return redirect('active_sessions')
+    if new_pc.pk == session.computer_id:
+        messages.info(request, 'Kompyuter o\'zgarmadi')
+        return redirect('active_sessions')
+    if new_pc.status == 'occupied':
+        messages.error(request, 'Tanlangan kompyuter band')
+        return redirect('active_sessions')
+
+    old_pc = session.computer
+    session.computer = new_pc
+    session.save()  # signal yangi kompyuterni occupied qiladi
+    _release_computer(old_pc)
+    messages.success(request, f'Sessiya {new_pc.name} kompyuteriga ko\'chirildi')
+    return _redirect_back(request)
+
+
+@login_required
+@require_POST
+def session_rate(request, pk):
+    session = get_object_or_404(Session, pk=pk)
+    if session.status != 'active':
+        messages.error(request, 'Sessiya faol emas')
+        return redirect('active_sessions')
+    try:
+        new_rate = Decimal(request.POST.get('hourly_price', ''))
+    except (InvalidOperation, ValueError):
+        messages.error(request, 'Narx noto\'g\'ri kiritildi')
+        return _redirect_back(request)
+    if new_rate <= 0:
+        messages.error(request, 'Narx musbat son bo\'lishi kerak')
+        return _redirect_back(request)
+    session.hourly_price = new_rate
+    method = request.POST.get('calculation_method')
+    if method in dict(Session.CALCULATION_METHOD_CHOICES):
+        session.calculation_method = method
+    session.save()
+    messages.success(request, 'Sessiya narxi yangilandi')
+    return _redirect_back(request)
 
 
 @login_required

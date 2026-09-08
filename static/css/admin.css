@@ -1,0 +1,343 @@
+/* ==========================================================================
+   Django admin — Premium dark theme (matches Cyber Club design system)
+   ========================================================================== */
+
+@media (prefers-color-scheme: dark), (prefers-color-scheme: light) {
+  :root {
+    --primary: #8B5CF6;
+    --secondary: #1A2230;
+    --accent: #A78BFA;
+    --primary-fg: #FFFFFF;
+
+    --body-fg: #E6EAF2;
+    --body-bg: #0B0F14;
+    --body-quiet-color: #9AA8BC;
+    --body-loud-color: #F5F7FA;
+
+    --header-color: #E6EAF2;
+    --header-branding-color: #FFFFFF;
+    --header-bg: #10161F;
+    --header-link-color: #C4B5FD;
+
+    --breadcrumbs-fg: #9AA8BC;
+    --breadcrumbs-link-fg: #A78BFA;
+    --breadcrumbs-bg: #151C26;
+
+    --link-fg: #A78BFA;
+    --link-hover-color: #C4B5FD;
+    --application-logo-color: #8B5CF6;
+    --link-selected-fg: #C4B5FD;
+
+    --hairline-color: #1F2937;
+    --border-color: #232C3D;
+
+    --error-fg: #F36A6A;
+
+    --message-success-bg: rgba(52, 211, 153, .12);
+    --message-success-fg: #86EFAC;
+    --message-warning-bg: rgba(251, 191, 36, .12);
+    --message-warning-fg: #FCD34D;
+    --message-error-bg: rgba(243, 106, 106, .12);
+    --message-error-fg: #FCA5A5;
+
+    --darkened-bg: #10161F;
+    --selected-bg: #151C26;
+    --selected-row: rgba(139, 92, 246, .18);
+
+    --button-fg: #FFFFFF;
+    --button-bg: #8B5CF6;
+    --button-hover-bg: #7C3AED;
+    --default-button-fg: #FFFFFF;
+    --default-button-bg: #7C3AED;
+    --default-button-hover-bg: #6D28D9;
+    --close-button-bg: #232C3D;
+    --close-button-hover-bg: #2B3547;
+    --delete-button-bg: #DC2626;
+    --delete-button-hover-bg: #B91C1C;
+
+    --object-tools-fg: #FFFFFF;
+    --object-tools-bg: #7C3AED;
+    --object-tools-hover-bg: #6D28D9;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Header / branding                                                   */
+/* ------------------------------------------------------------------ */
+#header {
+  border-bottom: 2px solid var(--primary);
+  padding: 14px 24px;
+}
+
+#site-name a {
+  color: var(--header-branding-color);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: .4px;
+}
+
+#site-name a:hover {
+  color: var(--accent);
+}
+
+#header a:link, #header a:visited {
+  color: var(--header-link-color);
+}
+
+/* ------------------------------------------------------------------ */
+/* Breadcrumbs                                                          */
+/* ------------------------------------------------------------------ */
+div.breadcrumbs {
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* ------------------------------------------------------------------ */
+/* Modules / tables                                                     */
+/* ------------------------------------------------------------------ */
+.module {
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.module h2, .module caption, .inline-group h2 {
+  background: var(--secondary);
+  color: var(--body-fg);
+  font-size: 11px;
+  letter-spacing: .6px;
+  text-transform: uppercase;
+}
+
+.module table {
+  border-collapse: collapse;
+}
+
+thead th, .module thead th {
+  background: var(--secondary);
+  color: var(--body-quiet-color);
+  font-size: 11px;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border-color);
+}
+
+tbody tr:nth-child(odd), tbody tr.odd {
+  background: var(--body-bg);
+}
+
+tbody tr:hover, #changelist tbody tr:hover {
+  background: var(--selected-bg);
+}
+
+#changelist table tbody tr.selected {
+  background: var(--selected-row);
+}
+
+#changelist {
+  background: var(--body-bg);
+  border-radius: 12px;
+}
+
+#content-related {
+  background: var(--selected-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+}
+
+.paginator {
+  background: var(--darkened-bg);
+  color: var(--body-fg);
+  border-top: 1px solid var(--border-color);
+}
+
+.paginator a, .paginator a:visited {
+  background: var(--body-bg);
+  color: var(--body-fg);
+}
+
+.paginator .this-page {
+  background: var(--primary);
+  color: var(--primary-fg);
+}
+
+/* ------------------------------------------------------------------ */
+/* Forms                                                                */
+/* ------------------------------------------------------------------ */
+input[type=text], input[type=password], input[type=email], input[type=url],
+input[type=number], input[type=search], input[type=tel], input[type=date],
+input[type=datetime-local], textarea, select, .vTextField, .vLargeTextField,
+.vURLField, .vIntegerField {
+  background-color: var(--body-bg);
+  color: var(--body-fg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+input:focus, textarea:focus, select:focus, .vTextField:focus, .vLargeTextField:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, .25);
+  outline: none;
+}
+
+input[type=submit], input[type=button], input[type=reset], .button, a.button {
+  border-radius: 8px;
+}
+
+select {
+  background-color: var(--body-bg);
+}
+
+.form-row {
+  border-bottom: 1px solid var(--hairline-color);
+}
+
+#content-main .module form .form-row:last-child {
+  border-bottom: none;
+}
+
+/* ------------------------------------------------------------------ */
+/* Toolbar / filters                                                    */
+/* ------------------------------------------------------------------ */
+#toolbar {
+  background: var(--darkened-bg);
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+
+#changelist #toolbar form #searchbar {
+  border-radius: 8px;
+}
+
+.object-tools a, .object-tools button {
+  border-radius: 8px;
+}
+
+#changelist-filter, #changelist .sidebar {
+  background: var(--selected-bg);
+  border-radius: 12px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Alerts / messages                                                    */
+/* ------------------------------------------------------------------ */
+ul.messagelist li {
+  border-radius: 8px;
+}
+
+.errornote {
+  border-radius: 8px;
+  background: var(--message-error-bg);
+  color: var(--message-error-fg);
+}
+
+/* ------------------------------------------------------------------ */
+/* Links & details                                                      */
+/* ------------------------------------------------------------------ */
+a, a:visited {
+  color: var(--link-fg);
+}
+
+a:hover {
+  color: var(--link-hover-color);
+}
+
+td, th {
+  border-color: var(--hairline-color);
+}
+
+.aligned label, .aligned .label {
+  color: var(--body-fg);
+}
+
+.help, p.help, form .help {
+  color: var(--body-quiet-color);
+}
+
+#user-tools {
+  color: var(--body-quiet-color);
+}
+
+#user-tools a:focus, #user-tools a:hover {
+  color: var(--accent);
+}
+
+/* ------------------------------------------------------------------ */
+/* Buttons / actions highlight                                          */
+/* ------------------------------------------------------------------ */
+.button.default, input[type=submit].default, .submit-row input.default {
+  border-radius: 8px;
+}
+
+.deletelink {
+  border-radius: 8px;
+}
+
+#changelist .actions .button {
+  border-radius: 8px;
+}
+
+.calendarbox, .clockbox {
+  background: var(--body-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, .45);
+}
+
+.calendarbox .calendar-caption,
+.calendarbox table caption {
+  background: var(--secondary);
+  color: var(--body-fg);
+  border-radius: 12px 12px 0 0;
+}
+
+.calendarbox .calendar td,
+.calendarbox th {
+  background: var(--body-bg);
+  color: var(--body-fg);
+}
+
+.calendarbox .calendar td a.today {
+  background: var(--primary);
+  border-radius: 6px;
+}
+
+.calendarbox .calendar td a:active {
+  background: var(--accent);
+}
+
+/* ------------------------------------------------------------------ */
+/* Login                                                                */
+/* ------------------------------------------------------------------ */
+body.login {
+  background: #070A0E;
+}
+
+#login-form input[type=text], #login-form input[type=password] {
+  border-radius: 8px;
+}
+
+#login-form .submit-row {
+  padding: 12px 0 0;
+}
+
+#login-form .submit-row input {
+  width: 100%;
+  border-radius: 8px;
+  background: var(--button-bg);
+  color: var(--button-fg);
+  border: none;
+  cursor: pointer;
+}
+
+/* ------------------------------------------------------------------ */
+/* Responsive admin header                                              */
+/* ------------------------------------------------------------------ */
+@media (max-width: 767px) {
+  #header {
+    padding: 12px 16px;
+  }
+  .module {
+    border-radius: 10px;
+  }
+}

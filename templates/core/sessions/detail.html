@@ -1,100 +1,128 @@
 {% extends 'base.html' %}
 {% load core_extras %}
 {% block title %}Session - {{ session.customer.full_name }}{% endblock %}
+{% block page_label %}Session Detail{% endblock %}
 
 {% block content %}
 <div class="page-head">
-    <div><h1>Sessiya: {{ session.customer.full_name }}</h1>
+    <div>
+        <h1>Sessiya: {{ session.customer.full_name }}</h1>
         <p class="muted">{{ session.computer.name }} · {{ session.room.name }} · {{ session.start_time|date:"d.m.Y H:i" }}</p>
     </div>
     <div class="head-actions">
-        <a href="{% url 'session_list' %}" class="btn btn-ghost"><i class="fas fa-arrow-left"></i> Orqaga</a>
+        <a href="{% url 'session_list' %}" class="btn btn-ghost"><i data-lucide="arrow-left"></i> Orqaga</a>
         {% if session.status == 'active' %}
-        <a href="{% url 'session_update' session.id %}" class="btn btn-ghost"><i class="fas fa-edit"></i> Tahrirlash</a>
+        <a href="{% url 'session_update' session.id %}" class="btn btn-ghost"><i data-lucide="pencil"></i> Tahrirlash</a>
+        <form method="post" action="{% url 'session_pause' session.id %}">
+            {% csrf_token %}
+            <button class="btn btn-ghost"><i data-lucide="{% if session.is_paused %}play{% else %}pause{% endif %}"></i> {% if session.is_paused %}Resume{% else %}Pauza{% endif %}</button>
+        </form>
         <form method="post" action="{% url 'session_stop' session.id %}" data-confirm="Sessiyani tugatasizmi?">
             {% csrf_token %}
-            <button class="btn btn-danger"><i class="fas fa-stop"></i> Stop Session</button>
+            <button class="btn btn-danger"><i data-lucide="square"></i> Stop Session</button>
         </form>
         {% endif %}
     </div>
 </div>
 
-<div class="stats-grid small-cards">
+<div class="stat-grid small-cards">
     <div class="stat-card accent">
-        <div class="stat-icon"><i class="fas fa-coins"></i></div>
-        <div class="stat-info"><span class="stat-label">Jami narx</span><strong class="stat-value">{{ session.total_price|money }}</strong></div>
+        <span class="stat-icon"><i data-lucide="coins"></i></span>
+        <div class="stat-info">
+            <span class="stat-label">Jami narx</span>
+            <div class="stat-value">{{ session.total_price|money }} <small>{{ site_settings.currency }}</small></div>
+            {% if session.status == 'active' %}<div class="stat-sub"><i data-lucide="activity"></i> joriy hisob</div>{% endif %}
+        </div>
     </div>
     <div class="stat-card green">
-        <div class="stat-icon"><i class="fas fa-credit-card"></i></div>
-        <div class="stat-info"><span class="stat-label">To'langan</span><strong class="stat-value">{{ session.paid_amount|money }}</strong></div>
+        <span class="stat-icon"><i data-lucide="credit-card"></i></span>
+        <div class="stat-info">
+            <span class="stat-label">To'langan</span>
+            <div class="stat-value">{{ session.paid_amount|money }} <small>{{ site_settings.currency }}</small></div>
+        </div>
     </div>
-    <div class="stat-card {% if remaining %}red{% else %}purple{% endif %}">
-        <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
+    <div class="stat-card {% if change %}success{% elif remaining %}red{% else %}purple{% endif %}">
+        <span class="stat-icon"><i data-lucide="{% if change %}arrow-up-right{% elif remaining %}triangle-alert{% else %}check-circle-2{% endif %}"></i></span>
         <div class="stat-info">
             <span class="stat-label">{% if change %}Qaytim{% elif remaining %}Qolgan{% else %}Kvitansiya{% endif %}</span>
-            <strong class="stat-value">{% if change %}{{ change|money }}{% elif remaining %}{{ remaining|money }}{% else %}To'liq to'langan{% endif %}</strong>
+            <div class="stat-value">
+                {% if change %}{{ change|money }}{% elif remaining %}{{ remaining|money }}{% else %}To'liq to'langan{% endif %}
+            </div>
         </div>
     </div>
     <div class="stat-card cyan">
-        <div class="stat-icon"><i class="fas fa-hourglass"></i></div>
-        <div class="stat-info"><span class="stat-label">Vaqt</span><strong class="stat-value">
-            {% if session.status == 'active' %}<span class="js-detail-elapsed" data-start="{{ session.start_time|date:'c' }}">--:--:--</span>
-            {% else %}{{ session.duration_minutes }} min{% endif %}</strong></div>
+        <span class="stat-icon"><i data-lucide="hourglass"></i></span>
+        <div class="stat-info">
+            <span class="stat-label">Vaqt</span>
+            <div class="stat-value">
+                {% if session.status == 'active' %}<span class="js-detail-elapsed" data-start="{{ session.start_time|date:'c' }}" {% if session.is_paused %}data-paused="{{ session.paused_at|date:'c' }}"{% endif %}>--:--:--</span>
+                {% else %}{{ session.duration_minutes }} min{% endif %}
+            </div>
+            {% if session.is_paused %}<div class="stat-sub"><i data-lucide="pause"></i> pauza holatida</div>{% endif %}
+        </div>
     </div>
 </div>
 
 <div class="detail-grid">
     <div class="card">
-        <div class="card-head"><h3>Details</h3></div>
-        <table class="kv">
-            <tr><td>Mijoz</td><td><a href="{% url 'customer_detail' session.customer.id %}">{{ session.customer.full_name }}</a></td></tr>
-            <tr><td>Telefon</td><td>{{ session.customer.phone|default:"-" }}</td></tr>
-            <tr><td>Xona</td><td>{{ session.room.name }}</td></tr>
-            <tr><td>Kompyuter</td><td>{{ session.computer.name }}</td></tr>
-            <tr><td>Boshlanish</td><td>{{ session.start_time|date:"d.m.Y H:i" }}</td></tr>
-            <tr><td>Reja tugash</td><td>{{ session.planned_end_time|date:"d.m.Y H:i"|default:"-" }}</td></tr>
-            <tr><td>Amalda tugash</td><td>{{ session.actual_end_time|date:"d.m.Y H:i"|default:"-" }}</td></tr>
-            <tr><td>Hisoblash usuli</td><td>{{ session.calculation_method|method_label }}</td></tr>
-            <tr><td>Soatlik narx</td><td>{{ session.hourly_price|money }} {{ site_settings.currency }}</td></tr>
-            <tr><td>Davomiylik</td><td>{{ session.duration_minutes }} min</td></tr>
-            <tr><td>Holat</td><td><span class="status-pill {{ session.status }}">{{ session.status|status_label }}</span></td></tr>
-            {% if session.note %}<tr><td>Izoh</td><td>{{ session.note }}</td></tr>{% endif %}
-        </table>
+        <div class="card-head"><h3><span class="t-icon"><i data-lucide="info"></i></span> Details</h3></div>
+        <div class="table-wrap">
+            <table class="table kv">
+                <tbody>
+                    <tr><td>Mijoz</td><td><a href="{% url 'customer_detail' session.customer.id %}" class="link">{{ session.customer.full_name }}</a></td></tr>
+                    <tr><td>Telefon</td><td>{{ session.customer.phone|default:"-" }}</td></tr>
+                    <tr><td>Xona</td><td>{{ session.room.name }}</td></tr>
+                    <tr><td>Kompyuter</td><td>{{ session.computer.name }}</td></tr>
+                    <tr><td>Boshlanish</td><td>{{ session.start_time|date:"d.m.Y H:i" }}</td></tr>
+                    <tr><td>Reja tugash</td><td>{{ session.planned_end_time|date:"d.m.Y H:i"|default:"-" }}</td></tr>
+                    <tr><td>Amalda tugash</td><td>{{ session.actual_end_time|date:"d.m.Y H:i"|default:"-" }}</td></tr>
+                    <tr><td>Hisoblash usuli</td><td>{{ session.calculation_method|method_label }}</td></tr>
+                    <tr><td>Soatlik narx</td><td>{{ session.hourly_price|money }} {{ site_settings.currency }}</td></tr>
+                    <tr><td>Davomiylik</td><td>{{ session.duration_minutes }} min</td></tr>
+                    <tr><td>Holat</td><td><span class="status-pill {{ session.status }}"><span class="pill-dot"></span>{{ session.status|status_label }}</span></td></tr>
+                    {% if session.note %}<tr><td>Izoh</td><td>{{ session.note }}</td></tr>{% endif %}
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <div class="card">
-        <div class="card-head"><h3>To'lovlar</h3></div>
+        <div class="card-head"><h3><span class="t-icon"><i data-lucide="credit-card"></i></span> Payments</h3></div>
         {% if session.status == 'active' %}
-        <form method="post" action="{% url 'payment_add' session.id %}" class="payment-form">
+        <form method="post" action="{% url 'payment_add' session.id %}" class="form-card" style="max-width:none;margin-bottom:18px;">
             {% csrf_token %}
+            <input type="hidden" name="payment_method" id="pm-sess" value="cash">
+            <div class="pm-grid" data-target="pm-sess">
+                <button type="button" class="selected" data-value="cash">Cash</button>
+                <button type="button" data-value="card">Card</button>
+                <button type="button" data-value="click">Click</button>
+                <button type="button" data-value="payme">Payme</button>
+                <button type="button" data-value="uzcard">UzCard</button>
+                <button type="button" data-value="humo">Humo</button>
+            </div>
             <div class="form-row">
-                <div class="form-group"><label>Summa</label>
-                    <input type="number" name="amount" class="form-control" required>
-                </div>
-                <div class="form-group"><label>Usul</label>
-                    <select name="payment_method" class="form-control">
-                        <option value="cash">Naqd</option><option value="card">Karta</option>
-                        <option value="click">Click</option><option value="payme">Payme</option>
-                        <option value="uzcard">UzCard</option><option value="humo">Humo</option>
-                    </select>
+                <div class="form-group" style="margin-bottom:0;">
+                    <label>Summa</label>
+                    <input type="number" name="amount" class="form-control" required min="1">
                 </div>
             </div>
-            <button class="btn btn-success"><i class="fas fa-plus"></i> To'lov qo'shish</button>
+            <button class="btn btn-success btn-block btn-lg mt-16"><i data-lucide="plus"></i> To'lov qo'shish</button>
         </form>
+        <div class="divider"></div>
         {% endif %}
         <div class="table-wrap">
-            <table>
+            <table class="table">
                 <thead><tr><th>Summa</th><th>Usul</th><th>Sana</th><th></th></tr></thead>
                 <tbody>
                     {% for p in payments %}
                     <tr>
-                        <td><strong>{{ p.amount|money }}</strong></td>
-                        <td>{{ p.payment_method|payment_method_label }}</td>
+                        <td><strong>{{ p.amount|money }} {{ site_settings.currency }}</strong></td>
+                        <td><span class="status-pill">{{ p.payment_method|payment_method_label }}</span></td>
                         <td>{{ p.created_at|date:"d.m H:i" }}</td>
                         <td>
                             <form method="post" action="{% url 'payment_delete' p.id %}" data-confirm="To'lovni o'chirasizmi?">
                                 {% csrf_token %}
-                                <button class="btn-icon danger"><i class="fas fa-trash"></i></button>
+                                <button class="btn-icon danger" title="Delete"><i data-lucide="trash-2"></i></button>
                             </form>
                         </td>
                     </tr>
@@ -115,8 +143,11 @@ document.addEventListener('DOMContentLoaded', function(){
     const els = document.querySelectorAll('.js-detail-elapsed');
     els.forEach(function(el){
         const start = new Date(el.dataset.start);
+        const paused = el.dataset.paused ? new Date(el.dataset.paused) : null;
         setInterval(function(){
-            let sec = Math.floor((Date.now() - start.getTime())/1000);
+            let now = Date.now();
+            if (paused) now = Math.min(now, paused.getTime());
+            let sec = Math.floor((now - start.getTime())/1000);
             if (sec < 0) sec = 0;
             const h = String(Math.floor(sec/3600)).padStart(2,'0');
             const m = String(Math.floor((sec%3600)/60)).padStart(2,'0');

@@ -2,16 +2,37 @@
 {% load static %}
 {% load core_extras %}
 {% block title %}Computer Rooms{% endblock %}
+{% block page_label %}Computer Rooms{% endblock %}
 
 {% block content %}
 <div class="page-head">
-    <div><h1>Computer Rooms</h1><p class="muted">Xonalar va ularning narxlari</p></div>
-    <a href="{% url 'room_create' %}" class="btn btn-primary"><i class="fas fa-plus"></i> Yangi xona</a>
+    <div>
+        <h1>Computer Rooms</h1>
+        <p class="muted">Xonalar, narxlar va bandlik ma'lumotlari</p>
+    </div>
+    <div class="head-actions">
+        <a href="{% url 'dashboard' %}" class="btn btn-ghost"><i data-lucide="layout-dashboard"></i> Dashboard</a>
+        <a href="{% url 'room_create' %}" class="btn btn-primary"><i data-lucide="plus"></i> New Room</a>
+    </div>
+</div>
+
+<div class="stat-grid small-cards">
+    <div class="stat-card accent">
+        <span class="stat-icon"><i data-lucide="network"></i></span>
+        <div class="stat-info"><span class="stat-label">Xonalar</span><div class="stat-value">{{ rooms|length }}</div></div>
+    </div>
+    <div class="stat-card green">
+        <span class="stat-icon"><i data-lucide="monitor"></i></span>
+        <div class="stat-info">
+            <span class="stat-label">Kompyuterlar</span>
+            <div class="stat-value">{{ rooms|length|add:0 }}</div>
+        </div>
+    </div>
 </div>
 
 <div class="card">
     <div class="table-wrap">
-        <table>
+        <table class="table">
             <thead>
                 <tr>
                     <th>#</th><th>Nomi</th><th>Raqam</th><th>Soatlik narx</th>
@@ -26,24 +47,28 @@
                     <td>{{ room.number|default:"-" }}</td>
                     <td>{{ room.hourly_price|money }} {{ site_settings.currency }}</td>
                     <td>{{ room.computers_count }}</td>
-                    <td><span class="status-pill occupied">{{ room.occupied_count }} band</span></td>
+                    <td><span class="status-pill occupied"><span class="pill-dot"></span>{{ room.occupied_count }} band</span></td>
                     <td>
                         {% if room.is_active %}
-                        <span class="status-pill active">Faol</span>
+                        <span class="status-pill active"><span class="pill-dot"></span>Faol</span>
                         {% else %}
-                        <span class="status-pill inactive">O'chiq</span>
+                        <span class="status-pill inactive"><span class="pill-dot"></span>O'chiq</span>
                         {% endif %}
                     </td>
                     <td class="actions">
-                        <a href="{% url 'room_update' room.id %}" class="btn-icon" title="Edit"><i class="fas fa-edit"></i></a>
+                        <a href="{% url 'room_update' room.id %}" class="btn-icon" title="Edit"><i data-lucide="pencil"></i></a>
                         <form method="post" action="{% url 'room_delete' room.id %}" data-confirm="Xonani o'chirasizmi?">
                             {% csrf_token %}
-                            <button class="btn-icon danger" title="Delete"><i class="fas fa-trash"></i></button>
+                            <button class="btn-icon danger" title="Delete"><i data-lucide="trash-2"></i></button>
                         </form>
                     </td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="8" class="empty-state">Xonalar yo'q</td></tr>
+                <tr><td colspan="8"><div class="empty-state">
+                    <span class="empty-ic"><i data-lucide="box"></i></span>
+                    <strong>Xonalar yo'q</strong>
+                    <a href="{% url 'room_create' %}" class="btn btn-primary sm"><i data-lucide="plus"></i> Xona qo'shish</a>
+                </div></td></tr>
                 {% endfor %}
             </tbody>
         </table>

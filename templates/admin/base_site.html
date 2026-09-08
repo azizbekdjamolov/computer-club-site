@@ -1,0 +1,6 @@
+{% extends "admin/base.html" %}
+{% load static %}
+{% block extrahead %}{{ block.super }}<meta name="theme-color" content="#0B0F14"><link rel="stylesheet" href="{% static 'css/admin.css' %}">{% endblock %}
+{% block branding %}
+<div id="site-name"><a href="{% url 'dashboard' %}">{{ site_header|default:'Cyber Club Admin' }}</a></div>
+{% endblock %}

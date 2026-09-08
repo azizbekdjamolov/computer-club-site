@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load core_extras %}
 {% block title %}{{ customer.full_name }}{% endblock %}
+{% block page_label %}Customer Profile{% endblock %}
 
 {% block content %}
 <div class="page-head">
@@ -9,46 +10,34 @@
         <p class="muted">Tel: {{ customer.phone|default:"-" }} · Qo'shilgan: {{ customer.created_at|date:"d.m.Y H:i" }}</p>
     </div>
     <div class="head-actions">
-        <a href="{% url 'customer_update' customer.id %}" class="btn btn-ghost"><i class="fas fa-edit"></i> Tahrirlash</a>
-        <a href="{% url 'customer_list' %}" class="btn btn-ghost"><i class="fas fa-arrow-left"></i> Orqaga</a>
+        <a href="{% url 'customer_update' customer.id %}" class="btn btn-ghost"><i data-lucide="pencil"></i> Tahrirlash</a>
+        <a href="{% url 'customer_list' %}" class="btn btn-ghost"><i data-lucide="arrow-left"></i> Orqaga</a>
     </div>
 </div>
 
-<div class="stats-grid small-cards">
+<div class="stat-grid small-cards">
     <div class="stat-card accent">
-        <div class="stat-icon"><i class="fas fa-history"></i></div>
-        <div class="stat-info">
-            <span class="stat-label">Tashriflar</span>
-            <strong class="stat-value">{{ customer.sessions_count }}</strong>
-        </div>
+        <span class="stat-icon"><i data-lucide="history"></i></span>
+        <div class="stat-info"><span class="stat-label">Tashriflar</span><div class="stat-value">{{ customer.sessions_count }}</div></div>
     </div>
     <div class="stat-card green">
-        <div class="stat-icon"><i class="fas fa-clock"></i></div>
-        <div class="stat-info">
-            <span class="stat-label">Umumiy vaqt</span>
-            <strong class="stat-value">{{ total_minutes }} min</strong>
-        </div>
+        <span class="stat-icon"><i data-lucide="clock"></i></span>
+        <div class="stat-info"><span class="stat-label">Umumiy vaqt</span><div class="stat-value">{{ total_minutes }} <small>min</small></div></div>
     </div>
     <div class="stat-card purple">
-        <div class="stat-icon"><i class="fas fa-coins"></i></div>
-        <div class="stat-info">
-            <span class="stat-label">Jami sarf</span>
-            <strong class="stat-value">{{ customer.total_spent|money }} {{ site_settings.currency }}</strong>
-        </div>
+        <span class="stat-icon"><i data-lucide="coins"></i></span>
+        <div class="stat-info"><span class="stat-label">Jami sarf</span><div class="stat-value">{{ customer.total_spent|money }} <small>{{ site_settings.currency }}</small></div></div>
     </div>
     <div class="stat-card red">
-        <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
-        <div class="stat-info">
-            <span class="stat-label">Qarzi</span>
-            <strong class="stat-value">{{ customer.total_debt|money }} {{ site_settings.currency }}</strong>
-        </div>
+        <span class="stat-icon"><i data-lucide="triangle-alert"></i></span>
+        <div class="stat-info"><span class="stat-label">Qarzi</span><div class="stat-value">{{ customer.total_debt|money }} <small>{{ site_settings.currency }}</small></div></div>
     </div>
 </div>
 
 <div class="card">
-    <div class="card-head"><h3>Sessiyalar tarixi</h3></div>
+    <div class="card-head"><h3><span class="t-icon"><i data-lucide="history"></i></span> Sessions history</h3></div>
     <div class="table-wrap">
-        <table>
+        <table class="table">
             <thead>
                 <tr><th>Sana</th><th>Kompyuter</th><th>Vaqt</th><th>Jami</th><th>To'langan</th><th>Qarz</th><th>Holat</th></tr>
             </thead>
@@ -56,15 +45,18 @@
                 {% for s in sessions %}
                 <tr>
                     <td>{{ s.start_time|date:"d.m.Y H:i" }}</td>
-                    <td>{{ s.computer.name }} ({{ s.room.name }})</td>
+                    <td><strong>{{ s.computer.name }}</strong> ({{ s.room.name }})</td>
                     <td>{{ s.duration_minutes }} min</td>
                     <td>{{ s.total_price|money }}</td>
                     <td>{{ s.paid_amount|money }}</td>
-                    <td>{% if s.remaining_amount %}{{ s.remaining_amount|money }}{% else %}<span class="text-green">0</span>{% endif %}</td>
-                    <td><span class="status-pill {{ s.status }}">{{ s.status|status_label }}</span></td>
+                    <td>{% if s.remaining_amount %}<span class="text-red">{{ s.remaining_amount|money }}</span>{% else %}<span class="text-green">0</span>{% endif %}</td>
+                    <td><span class="status-pill {{ s.status }}"><span class="pill-dot"></span>{{ s.status|status_label }}</span></td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="7" class="empty-state">Sessiyalar yo'q</td></tr>
+                <tr><td colspan="7"><div class="empty-state">
+                    <span class="empty-ic"><i data-lucide="history"></i></span>
+                    <strong>Sessiyalar yo'q</strong>
+                </div></td></tr>
                 {% endfor %}
             </tbody>
         </table>
@@ -73,7 +65,7 @@
 
 {% if customer.note %}
 <div class="card">
-    <div class="card-head"><h3>Izoh</h3></div>
+    <div class="card-head"><h3><span class="t-icon"><i data-lucide="sticky-note"></i></span> Note</h3></div>
     <p>{{ customer.note }}</p>
 </div>
 {% endif %}

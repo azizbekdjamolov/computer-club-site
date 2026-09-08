@@ -1,10 +1,15 @@
 {% extends 'base.html' %}
+{% load static %}
 {% load core_extras %}
 {% block title %}Reports{% endblock %}
+{% block page_label %}Reports{% endblock %}
 
 {% block content %}
 <div class="page-head">
-    <div><h1>Reports</h1><p class="muted">{{ range_label }}</p></div>
+    <div>
+        <h1>Reports</h1>
+        <p class="muted">{{ range_label }} · analytics overview</p>
+    </div>
 </div>
 
 <div class="card">
@@ -18,75 +23,83 @@
         </select>
         <input type="date" name="start" class="form-control custom-date {% if filter != 'custom' %}hidden{% endif %}" value="{{ custom_start }}">
         <input type="date" name="end" class="form-control custom-date {% if filter != 'custom' %}hidden{% endif %}" value="{{ custom_end }}">
-        <button class="btn btn-primary"><i class="fas fa-filter"></i> Filter</button>
+        <button class="btn btn-primary"><i data-lucide="filter"></i> Filter</button>
     </form>
 </div>
 
-<div class="stats-grid">
+<div class="stat-grid small-cards">
     <div class="stat-card accent">
-        <div class="stat-icon"><i class="fas fa-users"></i></div>
-        <div class="stat-info"><span class="stat-label">Jami mijozlar</span><strong class="stat-value">{{ total_customers }}</strong></div>
+        <span class="stat-icon"><i data-lucide="users"></i></span>
+        <div class="stat-info"><span class="stat-label">Jami mijozlar</span><div class="stat-value">{{ total_customers }}</div></div>
     </div>
     <div class="stat-card purple">
-        <div class="stat-icon"><i class="fas fa-laptop"></i></div>
-        <div class="stat-info"><span class="stat-label">Jami sessiyalar</span><strong class="stat-value">{{ total_sessions }}</strong></div>
+        <span class="stat-icon"><i data-lucide="laptop"></i></span>
+        <div class="stat-info"><span class="stat-label">Jami sessiyalar</span><div class="stat-value">{{ total_sessions }}</div></div>
     </div>
     <div class="stat-card cyan">
-        <div class="stat-icon"><i class="fas fa-clock"></i></div>
-        <div class="stat-info"><span class="stat-label">Jami vaqt</span><strong class="stat-value">{{ total_minutes }} min</strong></div>
+        <span class="stat-icon"><i data-lucide="clock"></i></span>
+        <div class="stat-info"><span class="stat-label">Jami vaqt</span><div class="stat-value">{{ total_minutes }} <small>min</small></div></div>
     </div>
     <div class="stat-card green">
-        <div class="stat-icon"><i class="fas fa-wallet"></i></div>
-        <div class="stat-info"><span class="stat-label">Daromad</span><strong class="stat-value">{{ total_revenue|money }}</strong></div>
+        <span class="stat-icon"><i data-lucide="wallet"></i></span>
+        <div class="stat-info"><span class="stat-label">Daromad</span><div class="stat-value">{{ total_revenue|money }} <small>{{ site_settings.currency }}</small></div></div>
     </div>
     <div class="stat-card blue">
-        <div class="stat-icon"><i class="fas fa-credit-card"></i></div>
-        <div class="stat-info"><span class="stat-label">To'langan</span><strong class="stat-value">{{ total_paid|money }}</strong></div>
+        <span class="stat-icon"><i data-lucide="credit-card"></i></span>
+        <div class="stat-info"><span class="stat-label">To'langan</span><div class="stat-value">{{ total_paid|money }} <small>{{ site_settings.currency }}</small></div></div>
     </div>
     <div class="stat-card red">
-        <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
-        <div class="stat-info"><span class="stat-label">Qarz</span><strong class="stat-value">{{ total_debt|money }}</strong></div>
+        <span class="stat-icon"><i data-lucide="triangle-alert"></i></span>
+        <div class="stat-info"><span class="stat-label">Qarz</span><div class="stat-value">{{ total_debt|money }} <small>{{ site_settings.currency }}</small></div></div>
     </div>
     <div class="stat-card orange">
-        <div class="stat-icon"><i class="fas fa-receipt"></i></div>
-        <div class="stat-info"><span class="stat-label">Xarajatlar</span><strong class="stat-value">{{ total_expenses|money }}</strong></div>
+        <span class="stat-icon"><i data-lucide="receipt"></i></span>
+        <div class="stat-info"><span class="stat-label">Xarajatlar</span><div class="stat-value">{{ total_expenses|money }} <small>{{ site_settings.currency }}</small></div></div>
     </div>
     <div class="stat-card success">
-        <div class="stat-icon"><i class="fas fa-chart-pie"></i></div>
-        <div class="stat-info"><span class="stat-label">Sof foyda</span><strong class="stat-value">{{ net_profit|money }}</strong></div>
+        <span class="stat-icon"><i data-lucide="chart-pie"></i></span>
+        <div class="stat-info"><span class="stat-label">Sof foyda</span><div class="stat-value">{{ net_profit|money }} <small>{{ site_settings.currency }}</small></div></div>
     </div>
 </div>
 
 <div class="report-leaders">
     <div class="card">
-        <div class="card-head"><h3>Eng ko'p ishlatilgan xona</h3></div>
+        <div class="card-head"><h3><span class="t-icon"><i data-lucide="door-open"></i></span> Eng ko'p ishlatilgan xona</h3></div>
         {% if top_room %}
-        <div class="leader"><i class="fas fa-door-open"></i><span>{{ top_room.room__name }}</span><strong>{{ top_room.total|money }} {{ site_settings.currency }}</strong></div>
+        <div class="leader">
+            <span class="leader-ic"><i data-lucide="network"></i></span>
+            <span>{{ top_room.room__name }}</span>
+            <strong>{{ top_room.total|money }} {{ site_settings.currency }}</strong>
+        </div>
         {% else %}<div class="empty-state small">Ma'lumot yo'q</div>{% endif %}
     </div>
     <div class="card">
-        <div class="card-head"><h3>Eng ko'p ishlatilgan kompyuter</h3></div>
+        <div class="card-head"><h3><span class="t-icon"><i data-lucide="monitor"></i></span> Eng ko'p ishlatilgan kompyuter</h3></div>
         {% if top_computer %}
-        <div class="leader"><i class="fas fa-desktop"></i><span>{{ top_computer.computer__name }}</span><strong>{{ top_computer.count }} marta</strong></div>
+        <div class="leader">
+            <span class="leader-ic"><i data-lucide="cpu"></i></span>
+            <span>{{ top_computer.computer__name }}</span>
+            <strong>{{ top_computer.count }} marta</strong>
+        </div>
         {% else %}<div class="empty-state small">Ma'lumot yo'q</div>{% endif %}
     </div>
 </div>
 
 <div class="charts-grid">
     <div class="card chart-card">
-        <div class="card-head"><h3>Kunlik daromad (14 kun)</h3></div>
+        <div class="card-head"><h3><span class="t-icon"><i data-lucide="trending-up"></i></span> Kunlik daromad (14 kun)</h3></div>
         <canvas id="dailyChart" height="120"></canvas>
     </div>
     <div class="card chart-card">
-        <div class="card-head"><h3>Xonalar bo'yicha daromad</h3></div>
+        <div class="card-head"><h3><span class="t-icon"><i data-lucide="pie-chart"></i></span> Xonalar bo'yicha daromad</h3></div>
         <canvas id="roomChart" height="120"></canvas>
     </div>
 </div>
 
 <div class="card">
-    <div class="card-head"><h3>Kompyuterlar bo'yicha foydalanish</h3></div>
+    <div class="card-head"><h3><span class="t-icon"><i data-lucide="cpu"></i></span> Kompyuterlar bo'yicha foydalanish</h3></div>
     <div class="table-wrap">
-        <table>
+        <table class="table">
             <thead><tr><th>Kompyuter</th><th>Xona</th><th>Ishlatilish</th><th>Vaqt</th></tr></thead>
             <tbody>
                 {% for c in computer_usage %}
@@ -110,6 +123,11 @@ const DAILY_DATA = {{ daily_revenue|safe }};
 const ROOM_DATA = {{ room_revenue|safe }};
 document.addEventListener('DOMContentLoaded', function(){
     if (window.Chart){
+        const css = getComputedStyle(document.documentElement);
+        const primary = css.getPropertyValue('--primary-3').trim() || '#a78bfa';
+        const text = css.getPropertyValue('--text-2').trim() || '#9aa8bc';
+        const gridC = css.getPropertyValue('--border').trim() || 'rgba(255,255,255,.08)';
+
         new Chart(document.getElementById('dailyChart'), {
             type: 'line',
             data: {
@@ -117,29 +135,36 @@ document.addEventListener('DOMContentLoaded', function(){
                 datasets: [{
                     label: 'Daromad',
                     data: DAILY_DATA,
-                    borderColor: '#7c3aed',
-                    backgroundColor: 'rgba(124,58,237,.15)',
-                    fill: true, tension: .4
+                    borderColor: primary,
+                    backgroundColor: 'rgba(139,92,246,.12)',
+                    fill: true, tension: .4,
+                    pointRadius: 3, pointBackgroundColor: primary,
+                    borderWidth: 2
                 }]
             },
             options: {
                 responsive: true,
-                plugins: { legend: { labels: { color: getComputedStyle(document.body).getPropertyValue('--text') } } },
+                plugins: { legend: { labels: { color: text } } },
                 scales: {
-                    x: { ticks: { color: getComputedStyle(document.body).getPropertyValue('--text') } },
-                    y: { ticks: { color: getComputedStyle(document.body).getPropertyValue('--text') } }
+                    x: { ticks: { color: text }, grid: { color: gridC } },
+                    y: { ticks: { color: text }, grid: { color: gridC } }
                 }
             }
         });
+
         const roomLabels = ROOM_DATA.map(r => r.room__name);
         const roomValues = ROOM_DATA.map(r => parseFloat(r.rev));
         new Chart(document.getElementById('roomChart'), {
             type: 'doughnut',
             data: {
                 labels: roomLabels,
-                datasets: [{ data: roomValues, backgroundColor: ['#7c3aed','#06b6d4','#10b981','#f59e0b','#ef4444','#8b5cf6'] }]
+                datasets: [{ data: roomValues, backgroundColor: [primary, '#22D3EE', '#34D399', '#FBBF24', '#F36A6A', '#A78BFA'] }]
             },
-            options: { responsive: true, plugins: { legend: { labels: { color: getComputedStyle(document.body).getPropertyValue('--text') } } } }
+            options: {
+                responsive: true,
+                cutout: '62%',
+                plugins: { legend: { position: 'bottom', labels: { color: text, padding: 14, usePointStyle: true } } }
+            }
         });
     }
 });

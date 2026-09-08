@@ -1,11 +1,17 @@
 {% extends 'base.html' %}
 {% load core_extras %}
 {% block title %}Reservations{% endblock %}
+{% block page_label %}Reservations{% endblock %}
 
 {% block content %}
 <div class="page-head">
-    <div><h1>Reservations</h1><p class="muted">Rezervatsiyalar</p></div>
-    <a href="{% url 'reservation_create' %}" class="btn btn-primary"><i class="fas fa-plus"></i> Yangi rezervatsiya</a>
+    <div>
+        <h1>Reservations</h1>
+        <p class="muted">Kompyuterlarni oldindan band qilish</p>
+    </div>
+    <div class="head-actions">
+        <a href="{% url 'reservation_create' %}" class="btn btn-primary"><i data-lucide="plus"></i> New Reservation</a>
+    </div>
 </div>
 
 <div class="card">
@@ -19,7 +25,7 @@
         </select>
     </form>
     <div class="table-wrap">
-        <table>
+        <table class="table">
             <thead>
                 <tr><th>Mijoz</th><th>PC</th><th>Xona</th><th>Boshlanish</th><th>Tugash</th><th>Holat</th><th>Amallar</th></tr>
             </thead>
@@ -27,21 +33,25 @@
                 {% for r in reservations %}
                 <tr>
                     <td><a href="{% url 'customer_detail' r.customer.id %}" class="link">{{ r.customer.full_name }}</a></td>
-                    <td>{{ r.computer.name }}</td>
+                    <td><strong>{{ r.computer.name }}</strong></td>
                     <td>{{ r.room.name }}</td>
                     <td>{{ r.start_time|date:"d.m H:i" }}</td>
                     <td>{{ r.end_time|date:"d.m H:i" }}</td>
-                    <td><span class="status-pill {{ r.status }}">{{ r.status|status_label }}</span></td>
+                    <td><span class="status-pill {{ r.status }}"><span class="pill-dot"></span>{{ r.status|status_label }}</span></td>
                     <td class="actions">
-                        <a href="{% url 'reservation_update' r.id %}" class="btn-icon"><i class="fas fa-edit"></i></a>
+                        <a href="{% url 'reservation_update' r.id %}" class="btn-icon" title="Edit"><i data-lucide="pencil"></i></a>
                         <form method="post" action="{% url 'reservation_delete' r.id %}" data-confirm="Rezervatsiyani o'chirasizmi?">
                             {% csrf_token %}
-                            <button class="btn-icon danger"><i class="fas fa-trash"></i></button>
+                            <button class="btn-icon danger" title="Delete"><i data-lucide="trash-2"></i></button>
                         </form>
                     </td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="7" class="empty-state">Rezervatsiyalar yo'q</td></tr>
+                <tr><td colspan="7"><div class="empty-state">
+                    <span class="empty-ic"><i data-lucide="calendar-check-2"></i></span>
+                    <strong>Rezervatsiyalar yo'q</strong>
+                    <a href="{% url 'reservation_create' %}" class="btn btn-primary sm"><i data-lucide="plus"></i> Rezervatsiya qo'shish</a>
+                </div></td></tr>
                 {% endfor %}
             </tbody>
         </table>
