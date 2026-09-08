@@ -155,3 +155,9 @@ if not DEBUG:
     CSRF_COOKIE_SECURE = True
     SESSION_COOKIE_HTTPONLY = True
     X_FRAME_OPTIONS = 'DENY'
+    CSRF_TRUSTED_ORIGINS = [
+        o.strip() for o in os.environ.get(
+            'DJANGO_CSRF_TRUSTED_ORIGINS',
+            'https://computer-club-site.onrender.com'
+        ).split(',') if o.strip()
+    ]
