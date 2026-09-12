@@ -158,6 +158,7 @@ if not DEBUG:
     CSRF_TRUSTED_ORIGINS = [
         o.strip() for o in os.environ.get(
             'DJANGO_CSRF_TRUSTED_ORIGINS',
+            'https://computer-club.onrender.com,'
             'https://computer-club-site.onrender.com'
         ).split(',') if o.strip()
     ]

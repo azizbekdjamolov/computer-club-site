@@ -5,7 +5,7 @@ from decimal import Decimal, InvalidOperation
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.db.models import Count, DecimalField, ExpressionWrapper, F, Sum
+from django.db.models import Count, DecimalField, ExpressionWrapper, F, Q, Sum
 from django.db.models.functions import Coalesce
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -38,6 +38,19 @@ from core.models import (
 # ----------------------------------------------------------------------------
 # Helpers
 # ----------------------------------------------------------------------------
+
+def require_superuser(view_func):
+    """Faqat superuser uchun ruxsat. Xodimlar o'chirish va sozlamalarni o'zgartira olmaydi."""
+    @login_required
+    def _wrapped(request, *args, **kwargs):
+        if not request.user.is_superuser:
+            messages.error(request, 'Bu amal uchun superuser huquqi kerak.')
+            return redirect('dashboard')
+        return view_func(request, *args, **kwargs)
+    return _wrapped
+
+
+MOVABLE_STATUSES = ('available', 'occupied')
 
 def _day_range(day=None):
     if day is None:
@@ -164,8 +177,19 @@ def dashboard(request):
 
 @login_required
 def room_list(request):
-    rooms = Room.objects.all().prefetch_related('computers')
-    return render(request, 'core/rooms/list.html', {'rooms': rooms, 'active_page': 'rooms'})
+    rooms = Room.objects.annotate(
+        computer_count=Count('computers', distinct=True),
+        occupied_in_room=Count(
+            'computers', filter=Q(computers__status='occupied'), distinct=True
+        ),
+    )
+    total_computers = rooms.aggregate(
+        v=Coalesce(Sum('computer_count'), 0)
+    )['v'] or 0
+    return render(request, 'core/rooms/list.html', {
+        'rooms': rooms, 'total_computers': total_computers,
+        'active_page': 'rooms',
+    })
 
 
 @login_required
@@ -189,7 +213,7 @@ def room_update(request, pk):
     return render(request, 'core/rooms/form.html', {'form': form, 'title': 'Xonani tahrirlash'})
 
 
-@login_required
+@require_superuser
 @require_POST
 def room_delete(request, pk):
     room = get_object_or_404(Room, pk=pk)
@@ -238,7 +262,7 @@ def computer_update(request, pk):
     return render(request, 'core/computers/form.html', {'form': form, 'title': 'Kompyuterni tahrirlash'})
 
 
-@login_required
+@require_superuser
 @require_POST
 def computer_delete(request, pk):
     computer = get_object_or_404(Computer, pk=pk)
@@ -254,7 +278,15 @@ def computer_delete(request, pk):
 @login_required
 def customer_list(request):
     customers = Customer.objects.annotate(
-        s_count=Count('sessions')
+        s_count=Count('sessions', distinct=True),
+        spent=Coalesce(Sum(
+            'sessions__total_price',
+            filter=Q(sessions__status='completed'),
+        ), Decimal('0')),
+        paid=Coalesce(Sum(
+            'sessions__paid_amount',
+            filter=Q(sessions__status='completed'),
+        ), Decimal('0')),
     ).order_by('-created_at')
     q = request.GET.get('q')
     if q:
@@ -300,7 +332,7 @@ def customer_update(request, pk):
     return render(request, 'core/customers/form.html', {'form': form, 'title': 'Mijozni tahrirlash'})
 
 
-@login_required
+@require_superuser
 @require_POST
 def customer_delete(request, pk):
     customer = get_object_or_404(Customer, pk=pk)
@@ -380,6 +412,13 @@ def session_create(request):
         if computer.room_id != room.pk:
             messages.error(request, 'Kompyuter tanlangan xonaga tegishli emas')
             return redirect('session_create')
+        if computer.status not in MOVABLE_STATUSES:
+            messages.error(
+                request,
+                'Bu kompyuterga sessiya ochib bo\'lmaydi '
+                '(holat: %s).' % computer.get_status_display()
+            )
+            return redirect('session_create')
 
         start_str = request.POST.get('start_time')
         start = None
@@ -417,7 +456,7 @@ def session_create(request):
             status='active',
             note=request.POST.get('note', ''),
         )
-        session.save()  # triggers signal -> computer occupied
+        # post_save signali kompyuterni occupied qiladi
 
         paid = request.POST.get('paid_amount')
         if paid:
@@ -466,6 +505,14 @@ def quick_start(request):
 
             computer = data['computer']
             room = data['room']
+
+            if computer.status not in MOVABLE_STATUSES:
+                messages.error(
+                    request,
+                    'Bu kompyuterga sessiya ochib bo\'lmaydi '
+                    '(holat: %s).' % computer.get_status_display()
+                )
+                return redirect('dashboard')
 
             start = data.get('start_time') or timezone.now()
             if timezone.is_naive(start):
@@ -630,10 +677,10 @@ def payment_list(request):
     payments = Payment.objects.select_related(
         'session__customer', 'session__computer'
     ).all()
+    total = _sum(payments, 'amount')
     q = request.GET.get('q')
     if q:
         payments = payments.filter(session__customer__full_name__icontains=q)
-    total = _sum(payments, 'amount')
     today_start = timezone.make_aware(datetime.combine(timezone.localdate(), time.min))
     today_total = _sum(payments.filter(created_at__gte=today_start), 'amount')
     paginator = Paginator(payments.order_by('-created_at'), 30)
@@ -661,7 +708,7 @@ def payment_add(request, session_pk):
     return redirect('session_detail', pk=session.pk)
 
 
-@login_required
+@require_superuser
 @require_POST
 def payment_delete(request, pk):
     payment = get_object_or_404(Payment, pk=pk)
@@ -724,7 +771,7 @@ def reservation_update(request, pk):
     })
 
 
-@login_required
+@require_superuser
 @require_POST
 def reservation_delete(request, pk):
     res = get_object_or_404(Reservation, pk=pk)
@@ -749,6 +796,7 @@ def expense_list(request):
     return render(request, 'core/expenses/list.html', {
         'expenses': page, 'active_page': 'expenses', 'total': total,
         'current_category': category,
+        'expense_categories': Expense.CATEGORY_CHOICES,
     })
 
 
@@ -777,7 +825,7 @@ def expense_update(request, pk):
     })
 
 
-@login_required
+@require_superuser
 @require_POST
 def expense_delete(request, pk):
     expense = get_object_or_404(Expense, pk=pk)
@@ -934,7 +982,7 @@ def _range_label(filter_key, start, end):
 # Settings
 # ----------------------------------------------------------------------------
 
-@login_required
+@require_superuser
 def settings_view(request):
     settings = Setting.get_settings()
     form = SettingForm(request.POST or None, instance=settings)

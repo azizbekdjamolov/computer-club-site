@@ -66,12 +66,15 @@ document.addEventListener('DOMContentLoaded', function () {
             const rid = this.value;
             qsComputer.innerHTML = '<option value="">Yuklanmoqda...</option>';
             if (!rid) { qsComputer.innerHTML = '<option value="">-- Avval xonani tanlang --</option>'; return; }
-            fetch('/rooms/' + rid + '/computers/')
+            const baseUrl = window.ROOM_COMPUTERS_URL || '';
+            const url = baseUrl ? baseUrl.replace('999', rid) : '/rooms/' + rid + '/computers/';
+            fetch(url)
                 .then(function (r) { return r.json(); })
                 .then(function (data) {
                     qsComputer.innerHTML = '<option value="">-- Kompyuter --</option>';
                     data.computers.forEach(function (pc) {
-                        const label = pc.status === 'reserved' ? ' (rezerv)' : pc.status === 'maintenance' ? ' (nosoz)' : pc.status === 'occupied' ? ' (band)' : '';
+                        if (pc.status === 'reserved' || pc.status === 'maintenance') return;
+                        const label = pc.status === 'occupied' ? ' (band)' : '';
                         const o = document.createElement('option');
                         o.value = pc.id;
                         o.textContent = pc.name + label;
@@ -140,7 +143,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Active session -> open dedicated detail modal (server-rendered)
                 const sessModal = document.getElementById('sessModal' + sessionId);
                 if (sessModal) { openModal('sessModal' + sessionId); return; }
-                window.location.href = '/sessions/active/';
+                window.location.href = window.ACTIVE_SESSIONS_URL || '/sessions/active/';
+                return;
+            }
+
+            if (status === 'reserved' || status === 'maintenance') {
+                // Rezerv yoki nosoz kompyuterga sessiya ochib bo'lmaydi
                 return;
             }
 

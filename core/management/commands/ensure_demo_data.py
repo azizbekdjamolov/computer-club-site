@@ -15,9 +15,23 @@ class Command(BaseCommand):
         if not User.objects.filter(is_superuser=True).exists():
             username = os.environ.get('DJANGO_ADMIN_USER', 'admin')
             email = os.environ.get('DJANGO_ADMIN_EMAIL', 'admin@example.com')
-            password = os.environ.get('DJANGO_ADMIN_PASSWORD', 'Admin12345')
-            User.objects.create_superuser(username=username, email=email, password=password)
-            self.stdout.write(self.style.SUCCESS(f'Superuser "{username}" created.'))
+            password = os.environ.get('DJANGO_ADMIN_PASSWORD')
+            if not password:
+                # Produktsiyada ochiq ma'lum bo'lgan parol yaratish mumkin emas
+                if os.environ.get('DJANGO_DEBUG', 'True') == 'True':
+                    password = 'Admin12345'
+                else:
+                    self.stderr.write(
+                        self.style.WARNING(
+                            'DJANGO_ADMIN_PASSWORD env o\'zgaruvchisi o\'rnatilmagan; '
+                            'superuser yaratilmadi.'
+                        )
+                    )
+            else:
+                User.objects.create_superuser(
+                    username=username, email=email, password=password
+                )
+                self.stdout.write(self.style.SUCCESS(f'Superuser "{username}" created.'))
 
         from core.models import Room
 

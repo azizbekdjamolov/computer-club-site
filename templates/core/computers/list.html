@@ -46,10 +46,12 @@
                     <td>{% if pc.is_active %}<span class="text-green"><i data-lucide="check" style="width:15px;height:15px;"></i></span>{% else %}<span class="text-red"><i data-lucide="x" style="width:15px;height:15px;"></i></span>{% endif %}</td>
                     <td class="actions">
                         <a href="{% url 'computer_update' pc.id %}" class="btn-icon" title="Edit"><i data-lucide="pencil"></i></a>
+                        {% if user.is_superuser %}
                         <form method="post" action="{% url 'computer_delete' pc.id %}" data-confirm="Kompyuterni o'chirasizmi?">
                             {% csrf_token %}
                             <button class="btn-icon danger" title="Delete"><i data-lucide="trash-2"></i></button>
                         </form>
+                        {% endif %}
                     </td>
                 </tr>
                 {% empty %}

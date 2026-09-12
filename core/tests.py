@@ -101,10 +101,57 @@ class PaymentTests(TestCase):
         self.assertEqual(self.session.change_amount, Decimal('10000'))
         self.assertEqual(self.session.remaining_amount, Decimal('0'))
 
+    def test_payment_delete_recalculates_paid_amount(self):
+        p1 = Payment.objects.create(session=self.session, amount=Decimal('5000'))
+        p2 = Payment.objects.create(session=self.session, amount=Decimal('7000'))
+        self.session.refresh_from_db()
+        self.assertEqual(self.session.paid_amount, Decimal('12000'))
+        p1.delete()
+        self.session.refresh_from_db()
+        self.assertEqual(self.session.paid_amount, Decimal('7000'))
+        p2.delete()
+        self.session.refresh_from_db()
+        self.assertEqual(self.session.paid_amount, Decimal('0'))
+
+
+class SessionPricingCompletionTests(TestCase):
+    def setUp(self):
+        self.room = Room.objects.create(name='1-xona', hourly_price=Decimal('10000'))
+        self.pc = Computer.objects.create(room=self.room, name='PC-01')
+        self.customer = Customer.objects.create(full_name='Ali')
+
+    def test_fixed_early_completion_keeps_contracted_price(self):
+        s = Session.objects.create(
+            customer=self.customer, room=self.room, computer=self.pc,
+            hourly_price=self.room.hourly_price, status='active',
+            calculation_method='fixed', duration_minutes=120,
+        )
+        s.start_time = timezone.now() - timezone.timedelta(minutes=40)
+        s.actual_end_time = timezone.now()
+        s.status = 'completed'
+        s.save()
+        s.refresh_from_db()
+        self.assertEqual(s.duration_minutes, 120)
+        self.assertEqual(s.total_price, Decimal('20000'))
+
+    def test_hourly_completion_uses_actual_elapsed(self):
+        s = Session.objects.create(
+            customer=self.customer, room=self.room, computer=self.pc,
+            hourly_price=self.room.hourly_price, status='active',
+            calculation_method='hourly', duration_minutes=120,
+        )
+        s.start_time = timezone.now() - timezone.timedelta(minutes=40)
+        s.actual_end_time = timezone.now()
+        s.status = 'completed'
+        s.save()
+        s.refresh_from_db()
+        self.assertEqual(s.duration_minutes, 40)
+        self.assertEqual(s.total_price, Decimal('10000'))
+
 
 class ViewTests(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username='admin', password='pass12345')
+        self.user = User.objects.create_superuser(username='admin', password='pass12345')
         self.client.login(username='admin', password='pass12345')
         self.room = Room.objects.create(name='1-xona', hourly_price=Decimal('10000'))
         self.pc = Computer.objects.create(room=self.room, name='PC-01')
@@ -118,6 +165,12 @@ class ViewTests(TestCase):
         self.client.logout()
         resp = self.client.get('/rooms/')
         self.assertEqual(resp.status_code, 302)
+
+    def test_room_list_renders_counts(self):
+        resp = self.client.get('/rooms/')
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(resp, '1-xona')
+        self.assertContains(resp, 'Kompyuterlar')
 
     def test_room_crud(self):
         resp = self.client.post('/rooms/create/', {
@@ -255,6 +308,41 @@ class ViewTests(TestCase):
         })
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(Payment.objects.count(), 1)
+
+    def test_quick_start_rejects_maintenance_pc(self):
+        self.pc.status = 'maintenance'
+        self.pc.save()
+        resp = self.client.post('/sessions/quick/', {
+            'customer_name': 'Hasan',
+            'room': self.room.id,
+            'computer': self.pc.id,
+        })
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(Session.objects.count(), 0)
+
+    def test_quick_start_rejects_reserved_pc(self):
+        self.pc.status = 'reserved'
+        self.pc.save()
+        resp = self.client.post('/sessions/quick/', {
+            'customer_name': 'Hasan',
+            'room': self.room.id,
+            'computer': self.pc.id,
+        })
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(Session.objects.count(), 0)
+
+    def test_delete_requires_superuser(self):
+        room = Room.objects.create(name='2-xona', hourly_price=Decimal('15000'))
+        self.client.logout()
+        self.client.login(username='admin', password='pass12345')
+        staff = User.objects.create_user(username='staff', password='pass12345', is_staff=True)
+        self.client.logout()
+        self.client.login(username='staff', password='pass12345')
+        resp = self.client.post(f'/rooms/{room.id}/delete/')
+        self.assertEqual(resp.status_code, 302)
+        self.assertTrue(Room.objects.filter(pk=room.id).exists())
+        resp = self.client.get('/settings/')
+        self.assertEqual(resp.status_code, 302)
 
 
 class PricingTests(TestCase):

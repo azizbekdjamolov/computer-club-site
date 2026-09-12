@@ -341,3 +341,47 @@ body.login {
     border-radius: 10px;
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* Extra polish                                                         */
+/* ------------------------------------------------------------------ */
+#container {
+  max-width: 1480px;
+}
+
+.dashboard #content {
+  padding: 24px;
+}
+
+#content-main .module,
+#changelist {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .25);
+}
+
+table {
+  border-radius: 0;
+}
+
+#changelist table thead th {
+  padding: 12px 14px;
+}
+
+#changelist table tbody td {
+  padding: 10px 14px;
+}
+
+fieldset.module {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .18);
+}
+
+.submit-row {
+  background: var(--darkened-bg);
+  padding: 14px 16px;
+  border-top: 1px solid var(--border-color);
+}
+
+.module caption small,
+.module h2 small {
+  font-size: 10px;
+  text-transform: none;
+}

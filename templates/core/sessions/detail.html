@@ -127,10 +127,12 @@
                         <td><span class="status-pill">{{ p.payment_method|payment_method_label }}</span></td>
                         <td>{{ p.created_at|date:"d.m H:i" }}</td>
                         <td>
+                            {% if user.is_superuser %}
                             <form method="post" action="{% url 'payment_delete' p.id %}" data-confirm="To'lovni o'chirasizmi?">
                                 {% csrf_token %}
                                 <button class="btn-icon danger" title="Delete"><i data-lucide="trash-2"></i></button>
                             </form>
+                            {% endif %}
                         </td>
                     </tr>
                     {% empty %}

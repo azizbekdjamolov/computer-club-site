@@ -429,6 +429,8 @@ const AUTO_REFRESH = {{ site_settings.auto_refresh_interval }};
 const CSRF = '{{ csrf_token }}';
 const CURRENCY = '{{ site_settings.currency }}';
 const QUICK_URL = '{% url "quick_start" %}';
+const ROOM_COMPUTERS_URL = '{% url "room_computers" 999 %}';
+const ACTIVE_SESSIONS_URL = '{% url "active_sessions" %}';
 </script>
 <script src="{% static 'js/active_sessions.js' %}"></script>
 <script src="{% static 'js/dashboard.js' %}"></script>

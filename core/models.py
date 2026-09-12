@@ -257,10 +257,16 @@ class Session(models.Model):
         if not self.hourly_price and self.room:
             self.hourly_price = self.room.hourly_price
         if self.status == 'completed' and self.actual_end_time:
-            minutes = int(
+            elapsed = int(
                 (self.actual_end_time - self.start_time).total_seconds() // 60
             )
-            self.duration_minutes = minutes
+            if self.calculation_method == 'fixed':
+                # Belgilangan muddat: narx kelishilgan blokka qarab hisoblanadi,
+                # erta tugatilganda ham shartnoma muddati o'zgarmaydi.
+                minutes = self.duration_minutes or elapsed
+            else:
+                minutes = elapsed
+                self.duration_minutes = minutes
             self.total_price = self.calculate_price(minutes)
         super().save(*args, **kwargs)
 

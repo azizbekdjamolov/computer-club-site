@@ -61,9 +61,11 @@
                 <a href="{% url 'settings' %}" class="nav-item {% if active_page == 'settings' %}active{% endif %}">
                     <i data-lucide="settings"></i><span>Sozlamalar</span>
                 </a>
+                {% if user.is_superuser %}
                 <a href="{% url 'admin:index' %}" class="nav-item" target="_blank" rel="noopener">
                     <i data-lucide="shield-check"></i><span>Admin panel</span>
                 </a>
+{% endif %}
             </nav>
 
             <div class="sidebar-footer">
@@ -115,7 +117,7 @@
                         <div class="user-avatar">{{ user.username|slice:":1"|upper }}</div>
                         <div class="user-meta">
                             <strong>{{ user.username }}</strong>
-                            <small>Admin</small>
+                            <small>{% if user.is_superuser %}Superuser{% else %}Xodim{% endif %}</small>
                         </div>
                     </div>
                 </div>

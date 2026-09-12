@@ -25,8 +25,10 @@ def build_notifications(settings):
 
     # Sessiya tugashiga X daqiqa qoldi (planned end yaqinlashganlar)
     threshold = settings.notification_minutes_before_end
-    active_sessions = Session.objects.filter(status='active')
-    for s in active_sessions:
+    active_sessions = Session.objects.filter(status='active').select_related(
+        'customer', 'computer'
+    )
+    for s in active_sessions[:15]:
         if s.planned_end_time:
             diff = s.planned_end_time - now
             seconds = diff.total_seconds()

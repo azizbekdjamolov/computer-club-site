@@ -26,6 +26,11 @@ class RoomForm(forms.ModelForm):
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.instance.pk and not kwargs.get('data'):
+            self.fields['hourly_price'].initial = Setting.get_settings().default_hourly_price
+
 
 class ComputerForm(forms.ModelForm):
     class Meta:
@@ -195,13 +200,6 @@ class ReservationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['computer'].queryset = Computer.objects.filter(is_active=True)
-
-    def clean(self):
-        cleaned = super().clean()
-        computer = cleaned.get('computer')
-        if computer:
-            computer = Computer.objects.filter(pk=computer.pk).first()
-        return cleaned
 
 
 class SettingForm(forms.ModelForm):

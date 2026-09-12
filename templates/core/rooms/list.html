@@ -25,7 +25,7 @@
         <span class="stat-icon"><i data-lucide="monitor"></i></span>
         <div class="stat-info">
             <span class="stat-label">Kompyuterlar</span>
-            <div class="stat-value">{{ rooms|length|add:0 }}</div>
+            <div class="stat-value">{{ total_computers }}</div>
         </div>
     </div>
 </div>
@@ -46,8 +46,8 @@
                     <td><strong>{{ room.name }}</strong></td>
                     <td>{{ room.number|default:"-" }}</td>
                     <td>{{ room.hourly_price|money }} {{ site_settings.currency }}</td>
-                    <td>{{ room.computers_count }}</td>
-                    <td><span class="status-pill occupied"><span class="pill-dot"></span>{{ room.occupied_count }} band</span></td>
+                    <td>{{ room.computer_count }}</td>
+                    <td><span class="status-pill occupied"><span class="pill-dot"></span>{{ room.occupied_in_room }} band</span></td>
                     <td>
                         {% if room.is_active %}
                         <span class="status-pill active"><span class="pill-dot"></span>Faol</span>
@@ -57,10 +57,12 @@
                     </td>
                     <td class="actions">
                         <a href="{% url 'room_update' room.id %}" class="btn-icon" title="Edit"><i data-lucide="pencil"></i></a>
+                        {% if user.is_superuser %}
                         <form method="post" action="{% url 'room_delete' room.id %}" data-confirm="Xonani o'chirasizmi?">
                             {% csrf_token %}
                             <button class="btn-icon danger" title="Delete"><i data-lucide="trash-2"></i></button>
                         </form>
+                        {% endif %}
                     </td>
                 </tr>
                 {% empty %}

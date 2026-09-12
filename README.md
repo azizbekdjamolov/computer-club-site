@@ -9,7 +9,7 @@ Zamonaviy va professional kompyuter xonasi / computer club boshqaruv tizimi.
 - Frontend: HTML5, CSS3 (+ dark/light theme), JavaScript (vanilla)
 - Static & speed: WhiteNoise (compressed static), DB indexes, optimized queries
 - Charts: Chart.js
-- Font: Inter, Icons: Font Awesome
+- Font: Inter, Icons: Lucide
 - Server: Gunicorn (production)
 
 ## Imkoniyatlar
@@ -24,6 +24,7 @@ Zamonaviy va professional kompyuter xonasi / computer club boshqaruv tizimi.
 - **Xarajatlar**: kategoriyalar bo'yicha
 - **Hisobotlar**: kunlik/haftalik/oylik, grafiklar
 - **Sozlamalar**: klub nomi, valyuta, auto-refresh, dark mode
+- **Rollar**: o'chirish va sozlamalar faqat superuser uchun, xodimlar operatsiyalarni bajaradi
 - **Global qidiruv** va **notificationlar** (tugashga yaqin sessiya, qarzdorlik)
 
 ## Ishlatilgan dastlabki qadamlar (local dev)
@@ -121,4 +122,7 @@ requirements.txt
 
 - Hisob-kitoblar backendda (Django) amalga oshiriladi; JavaScript faqat displey uchun.
 - Session tugatilganda kompyuter avtomatik `available` bo'ladi (signal orqali).
-- Bitta kompyuterda bir vaqtning o'zida bitta faol sessiya bo'ladi (tekshiruv mavjud).
+- Bitta kompyuterda bir vaqtning o'zida bir nechta mijoz (masalan, ko'p kishilik o'yin) sessiyasi bo'lishi mumkin; kompyuter `occupied` bo'lsa ham yangi mijoz qo'shilaveradi.
+- `reserved` (rezerv) va `maintenance` (nosoz) kompyuterlarga sessiya ochib bo'lmaydi.
+- To'lov o'chirilganda sessiyaning "To'langan" summasi avtomatik qayta hisoblanadi (post_delete signal).
+- Admin panel va o'chirish amallari faqat superuser uchun.

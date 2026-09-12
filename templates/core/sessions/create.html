@@ -97,6 +97,7 @@
 
 {% block extra_js %}
 <script>
+const ROOM_COMPUTERS_URL = '{% url "room_computers" 999 %}';
 document.addEventListener('DOMContentLoaded', function(){
     const room = document.getElementById('sessRoom');
     const comp = document.getElementById('sessComputer');
@@ -104,22 +105,47 @@ document.addEventListener('DOMContentLoaded', function(){
         const rid = this.value;
         comp.innerHTML = '<option value="">Yuklanmoqda...</option>';
         if(!rid) return;
-        fetch('/rooms/'+rid+'/computers/')
+        const url = ROOM_COMPUTERS_URL.replace('999', rid);
+        fetch(url)
             .then(r => r.json())
             .then(data => {
                 comp.innerHTML = '<option value="">-- Kompyuter --</option>';
                 data.computers.forEach(pc => {
-                    if (pc.status !== 'occupied'){
+                    if (pc.status === 'available' || pc.status === 'occupied'){
                         const o = document.createElement('option');
                         o.value = pc.id;
-                        o.textContent = pc.name + (pc.status === 'reserved' ? ' (rezerv)' : pc.status === 'maintenance' ? ' (nosoz)' : '');
+                        o.textContent = pc.name + (pc.status === 'occupied' ? ' (band)' : '');
                         comp.appendChild(o);
                     }
                 });
             });
     });
+
+    function toLocal(d) {
+        const pad = function (n) { return String(n).padStart(2, '0'); };
+        return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) +
+            'T' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+    }
+
     const startInput = document.getElementById('sessStart');
-    if (!startInput.value) startInput.value = window.prefillNow();
+    const durInput = document.querySelector('input[name=duration_minutes]');
+    const endInput = document.querySelector('input[name=planned_end_time]');
+    if (startInput && !startInput.value) startInput.value = toLocal(new Date());
+    if (startInput && durInput && endInput) {
+        durInput.addEventListener('change', function(){
+            if (this.value && startInput.value) {
+                const d = new Date(startInput.value);
+                d.setMinutes(d.getMinutes() + parseInt(this.value));
+                endInput.value = toLocal(d);
+            }
+        });
+        endInput.addEventListener('change', function(){
+            if (this.value && startInput.value) {
+                const ms = new Date(this.value) - new Date(startInput.value);
+                if (ms > 0) durInput.value = Math.round(ms / 60000);
+            }
+        });
+    }
 });
 </script>
 {% endblock %}

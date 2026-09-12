@@ -1,7 +1,7 @@
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 
-from core.models import Computer, Reservation, Session
+from core.models import Computer, Payment, Reservation, Session
 
 
 @receiver(post_save, sender=Session)
@@ -30,6 +30,15 @@ def session_deleted(sender, instance, **kwargs):
         ).exists()
         if not has_active:
             Computer.objects.filter(pk=instance.computer_id).update(status='available')
+
+
+@receiver(post_delete, sender=Payment)
+def payment_deleted(sender, instance, **kwargs):
+    """To'lov o'chirilganda sessiyaning paid_amount qiymatini qayta hisoblash."""
+    if instance.session_id:
+        session = Session.objects.filter(pk=instance.session_id).first()
+        if session:
+            session.update_from_payments()
 
 
 @receiver(post_save, sender=Reservation)

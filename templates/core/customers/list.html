@@ -30,16 +30,18 @@
                 <tr>
                     <td><a href="{% url 'customer_detail' c.id %}" class="link"><strong>{{ c.full_name }}</strong></a></td>
                     <td>{{ c.phone|default:"-" }}</td>
-                    <td>{{ c.sessions_count }}</td>
-                    <td>{{ c.total_spent|money }} {{ site_settings.currency }}</td>
+                    <td>{{ c.s_count }}</td>
+                    <td>{{ c.spent|money }} {{ site_settings.currency }}</td>
                     <td>{{ c.created_at|date:"d.m.Y" }}</td>
                     <td class="actions">
                         <a href="{% url 'customer_detail' c.id %}" class="btn-icon" title="View"><i data-lucide="eye"></i></a>
                         <a href="{% url 'customer_update' c.id %}" class="btn-icon" title="Edit"><i data-lucide="pencil"></i></a>
+                        {% if user.is_superuser %}
                         <form method="post" action="{% url 'customer_delete' c.id %}" data-confirm="Mijozni o'chirasizmi? Tarixi ham o'chadi.">
                             {% csrf_token %}
                             <button class="btn-icon danger" title="Delete"><i data-lucide="trash-2"></i></button>
                         </form>
+                        {% endif %}
                     </td>
                 </tr>
                 {% empty %}
