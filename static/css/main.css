@@ -469,6 +469,11 @@ form .btn-icon { padding: 0; }
 }
 .stat-grid.small-cards { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
 
+/* Dashboard: one hero row + a flat 4-column operational grid */
+.stat-grid.dash-stats { grid-template-columns: repeat(4, 1fr); }
+.stat-grid.dash-stats .stat-card { min-height: 118px; }
+.stat-grid.dash-stats .stat-card--hero { grid-column: 1 / -1; }
+
 .stat-card {
   position: relative; overflow: hidden;
   background: var(--surface);
@@ -501,6 +506,19 @@ form .btn-icon { padding: 0; }
 .stat-sub { display: flex; align-items: center; gap: 5px; font-size: 11.5px; color: var(--text-3); margin-top: 6px; font-weight: 550; }
 .stat-sub svg { width: 13px; height: 13px; }
 
+/* Empty-state: value below zero looks muted instead of bold/colorful */
+.stat-value.is-zero,
+.stat-card--hero .stat-sub.is-zero { color: var(--text-3); opacity: .65; font-weight: 650; }
+
+/* Computers status card (free · busy inline figures) */
+.stat-value .val-free { color: var(--green); }
+.stat-value .val-busy { color: var(--red); }
+.stat-value .val-sep { margin: 0 4px; color: var(--text-3); font-weight: 600; }
+.stat-value .val-free.is-zero,
+.stat-value .val-busy.is-zero { color: var(--text-3); opacity: .65; }
+.stat-value.is-zero .val-free,
+.stat-value.is-zero .val-busy { color: var(--text-3); }
+
 .stat-card.accent     { --wash: var(--primary-wash); --tint: var(--primary-3); }
 .stat-card.green      { --wash: var(--green-wash); --tint: var(--green); }
 .stat-card.red        { --wash: var(--red-wash); --tint: var(--red); }
@@ -528,7 +546,6 @@ form .btn-icon { padding: 0; }
 .stat-card--hero .stat-label { font-size: 12.5px; letter-spacing: .6px; }
 .stat-card--hero .stat-value { font-size: 38px; }
 .stat-card--hero .stat-sub { margin-top: 8px; font-size: 12.5px; }
-.stat-hero-foot { display: flex; gap: 10px; flex-wrap: wrap; }
 
 /* ---------------------------------------------------------------------------
    Dashboard layout
@@ -961,6 +978,8 @@ select.form-control option { background: var(--surface); color: var(--text); }
   .dash-layout { grid-template-columns: 1fr; }
   .detail-grid, .charts-grid, .report-leaders { grid-template-columns: 1fr; }
   .stat-card--hero { grid-column: span 1; }
+  .stat-grid.dash-stats { grid-template-columns: repeat(2, 1fr); }
+  .stat-grid.dash-stats .stat-card--hero { grid-column: 1 / -1; }
 }
 
 @media (max-width: 900px) {
@@ -980,6 +999,7 @@ select.form-control option { background: var(--surface); color: var(--text); }
   .breadcrumb .crumb { display: none; }
   .content { padding: 14px; }
   .stat-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+  .stat-grid.dash-stats { grid-template-columns: 1fr; }
   .active-grid { grid-template-columns: 1fr; }
   .notif-dropdown { position: fixed; left: 0; right: 0; top: 62px; width: auto; margin: 0 10px; }
   .page-head h1 { font-size: 20px; }

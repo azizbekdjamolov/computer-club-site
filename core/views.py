@@ -114,11 +114,6 @@ def dashboard(request):
 
     revenue_today = _sum(completed_today, 'total_price')
     paid_today = _sum(completed_today, 'paid_amount')
-    expenses_today = _sum(
-        Expense.objects.filter(created_at__gte=today_start, created_at__lt=today_end),
-        'amount',
-    )
-    net_profit = revenue_today - expenses_today
 
     customers_today = sessions_today.values('customer').distinct().count()
     computers = Computer.objects.filter(is_active=True)
@@ -153,8 +148,6 @@ def dashboard(request):
         'settings': settings,
         'revenue_today': revenue_today,
         'paid_today': paid_today,
-        'expenses_today': expenses_today,
-        'net_profit': net_profit,
         'customers_today': customers_today,
         'total_computers': total_computers,
         'occupied_count': occupied_computers,

@@ -19,21 +19,17 @@
 </div>
 
 <!-- Today's overview -->
-<div class="stat-grid">
+<div class="stat-grid dash-stats">
     <div class="stat-card accent stat-card--hero">
         <div class="stat-top">
             <div>
                 <span class="stat-icon"><i data-lucide="wallet"></i></span>
                 <span class="stat-label">Bugungi daromad</span>
-                <div class="stat-value">{{ revenue_today|money }} <small>{{ site_settings.currency }}</small></div>
-                <div class="stat-sub">
+                <div class="stat-value {% if revenue_today == 0 %}is-zero{% endif %}">{{ revenue_today|money }} <small>{{ site_settings.currency }}</small></div>
+                <div class="stat-sub {% if paid_today == 0 %}is-zero{% endif %}">
                     <i data-lucide="trending-up"></i>
                     Qabul qilingan: {{ paid_today|money }} {{ site_settings.currency }}
                 </div>
-            </div>
-            <div class="stat-hero-foot">
-                <a href="{% url 'reports' %}" class="btn btn-ghost sm"><i data-lucide="chart-line"></i> Reports</a>
-                <a href="{% url 'payment_list' %}" class="btn btn-ghost sm"><i data-lucide="credit-card"></i> Payments</a>
             </div>
         </div>
     </div>
@@ -42,7 +38,7 @@
         <span class="stat-icon"><i data-lucide="play-circle"></i></span>
         <div class="stat-info">
             <span class="stat-label">Faol sessiyalar</span>
-            <div class="stat-value">{{ active_count }}</div>
+            <div class="stat-value {% if active_count == 0 %}is-zero{% endif %}">{{ active_count }}</div>
             <div class="stat-sub"><i data-lucide="activity"></i> hozir ro'yxatda</div>
         </div>
     </div>
@@ -50,18 +46,15 @@
     <div class="stat-card green">
         <span class="stat-icon"><i data-lucide="monitor"></i></span>
         <div class="stat-info">
-            <span class="stat-label">Bo'sh kompyuterlar</span>
-            <div class="stat-value">{{ free_count }} <small>/ {{ total_computers }}</small></div>
-            <div class="stat-sub"><i data-lucide="check-circle-2"></i> bo'sh, foydalanishga tayyor</div>
-        </div>
-    </div>
-
-    <div class="stat-card red">
-        <span class="stat-icon"><i data-lucide="cpu"></i></span>
-        <div class="stat-info">
-            <span class="stat-label">Band kompyuterlar</span>
-            <div class="stat-value">{{ occupied_count }}</div>
-            <div class="stat-sub"><i data-lucide="users"></i> {{ debtors|length }} qarzdor</div>
+            <span class="stat-label">Kompyuterlar holati</span>
+            <div class="stat-value {% if free_count == 0 and occupied_count == 0 %}is-zero{% endif %}">
+                <span class="val-free {% if free_count == 0 %}is-zero{% endif %}">{{ free_count }}</span>
+                <small>bo'sh</small>
+                <span class="val-sep">·</span>
+                <span class="val-busy {% if occupied_count == 0 %}is-zero{% endif %}">{{ occupied_count }}</span>
+                <small>band</small>
+            </div>
+            <div class="stat-sub"><i data-lucide="server"></i> {{ total_computers }} ta kompyuter</div>
         </div>
     </div>
 
@@ -69,26 +62,8 @@
         <span class="stat-icon"><i data-lucide="users"></i></span>
         <div class="stat-info">
             <span class="stat-label">Bugungi mijozlar</span>
-            <div class="stat-value">{{ customers_today }}</div>
+            <div class="stat-value {% if customers_today == 0 %}is-zero{% endif %}">{{ customers_today }}</div>
             <div class="stat-sub"><i data-lucide="user-check"></i> noyob mijozlar</div>
-        </div>
-    </div>
-
-    <div class="stat-card orange">
-        <span class="stat-icon"><i data-lucide="receipt"></i></span>
-        <div class="stat-info">
-            <span class="stat-label">Bugungi xarajatlar</span>
-            <div class="stat-value">{{ expenses_today|money }} <small>{{ site_settings.currency }}</small></div>
-            <div class="stat-sub"><a href="{% url 'expense_list' %}" class="link">Batafsil</a></div>
-        </div>
-    </div>
-
-    <div class="stat-card success">
-        <span class="stat-icon"><i data-lucide="landmark"></i></span>
-        <div class="stat-info">
-            <span class="stat-label">Sof foyda</span>
-            <div class="stat-value">{{ net_profit|money }} <small>{{ site_settings.currency }}</small></div>
-            <div class="stat-sub"><i data-lucide="calculator"></i> daromad − xarajat</div>
         </div>
     </div>
 
@@ -96,7 +71,7 @@
         <span class="stat-icon"><i data-lucide="calendar-clock"></i></span>
         <div class="stat-info">
             <span class="stat-label">Rezervatsiyalar</span>
-            <div class="stat-value">{{ upcoming_res|length }}</div>
+            <div class="stat-value {% if upcoming_res|length == 0 %}is-zero{% endif %}">{{ upcoming_res|length }}</div>
             <div class="stat-sub"><a href="{% url 'reservation_list' %}" class="link">Kelgusi rejalar</a></div>
         </div>
     </div>
